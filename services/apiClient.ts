@@ -1,0 +1,57 @@
+import api from './api';
+import { AuthResponse, Product, Payment } from '../types';
+
+const API_PREFIX = '/'; // `api` instance already has baseURL pointing to /api
+
+export async function login(username: string, password: string) {
+  const { data } = await api.post<AuthResponse>(`/token/`, { username, password });
+  if (data.access) localStorage.setItem('access_token', data.access);
+  if (data.refresh) localStorage.setItem('refresh_token', data.refresh);
+  return data;
+}
+
+export async function refreshToken(refresh: string) {
+  const { data } = await api.post<AuthResponse>(`/token/refresh/`, { refresh });
+  if (data.access) localStorage.setItem('access_token', data.access);
+  return data;
+}
+
+export async function getProducts(params?: Record<string, any>) {
+  const { data } = await api.get<Product[]>(`/products/`, { params });
+  return data;
+}
+
+export async function getPayments(params?: Record<string, any>) {
+  const { data } = await api.get<Payment[]>(`/payments/`, { params });
+  return data;
+}
+
+export async function getProduct(id: number | string) {
+  const { data } = await api.get<Product>(`/products/${id}/`);
+  return data;
+}
+
+export async function createProduct(payload: Record<string, any> | FormData) {
+  if (payload instanceof FormData) {
+    // Let axios set the multipart boundary
+    const { data } = await api.post(`/products/`, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return data;
+  }
+  const { data } = await api.post(`/products/`, payload);
+  return data;
+}
+
+export async function sendChatbotMessage(message: string) {
+  const { data } = await api.post<{ reply: string }>(`/chatbot/chatbot/`, { message });
+  return data;
+}
+
+export default {
+  login,
+  refreshToken,
+  getProducts,
+  getPayments,
+  getProduct,
+  createProduct,
+  sendChatbotMessage,
+};
