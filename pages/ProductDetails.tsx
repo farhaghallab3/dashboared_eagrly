@@ -101,7 +101,7 @@ const ProductDetails: React.FC = () => {
     }
   };
 
-  
+
 
   return (
     <Layout>
@@ -138,7 +138,7 @@ const ProductDetails: React.FC = () => {
             <div className="mt-6 p-4 rounded bg-white/5 border border-white/10">
               <h3 className="text-white font-semibold mb-2">Owner Contact</h3>
               <p className="text-white/80">Name: {seller.first_name || seller.name || 'Owner'}</p>
-              <p className="text-white/80">Phone: {seller.phone || '-'}</p>
+              <p className="text-white/80">Phone: Contact for details</p>
               <p className="text-white/80">Email: {seller.email || '-'}</p>
             </div>
 
@@ -146,64 +146,7 @@ const ProductDetails: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto mt-6 p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-white">Reviews</h3>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setIsReportOpen(true)} className="text-sm text-red-400 hover:underline">Report this product</button>
-          </div>
-        </div>
-
-        <div className="bg-white/5 rounded p-4 mb-4">
-          {reviewsLoading ? (
-            <div className="text-white/50">Loading reviews...</div>
-          ) : reviews && reviews.length === 0 ? (
-            <div className="text-white/50">No reviews yet.</div>
-          ) : (
-            reviews.map(r => (
-              <div key={r.id} className="border-b border-white/10 py-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-white">{r.user_name || `User ${r.user}`}</div>
-                      <div className="text-sm text-white/60">{(function formatDate(val:any){ if(!val && val!==0) return ''; try{ const d = typeof val==='number'? new Date(val): new Date(String(val)); if(isNaN(d.getTime())) return String(val); return d.toLocaleString(); }catch(e){ return String(val);} })(r.created_at)}</div>
-                  </div>
-                  <div className="text-yellow-400 font-semibold">{'★'.repeat(Math.max(0, Math.min(5, r.rating)))}</div>
-                </div>
-                {r.comment && <div className="mt-2 text-white/80">{r.comment}</div>}
-                <div className="mt-2 flex gap-2">
-                  {(user && (user.role === 'admin' || user.id === r.user)) && (
-                    <button onClick={() => handleDeleteReview(r.id)} className="text-sm text-red-400">Delete</button>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        <div className="bg-white/5 p-4 rounded">
-          <h4 className="text-white font-semibold mb-2">Leave a review</h4>
-          <form onSubmit={handleCreateReview} className="space-y-3">
-            <div className="flex items-center gap-3">
-              <label className="text-sm text-white/70">Rating</label>
-              <select value={reviewRating} onChange={(e) => setReviewRating(Number(e.target.value))} className="bg-black/20 text-white p-2 rounded">
-                <option value={5}>5 - Excellent</option>
-                <option value={4}>4 - Good</option>
-                <option value={3}>3 - Average</option>
-                <option value={2}>2 - Poor</option>
-                <option value={1}>1 - Terrible</option>
-              </select>
-            </div>
-            <div>
-              <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} placeholder="Write your review..." className="w-full bg-black/20 p-2 rounded text-white h-24" />
-            </div>
-            <div className="flex gap-2">
-              <button disabled={!user} type="submit" className="bg-primary text-[#112120] px-4 py-2 rounded font-bold">Post Review</button>
-              {!user && <div className="text-white/60 text-sm">You must be logged in to post a review.</div>}
-            </div>
-          </form>
-        </div>
-
-      </div>
+      {/* Reviews Removed */}
 
       <Modal isOpen={isReportOpen} onClose={() => setIsReportOpen(false)} title="Report this product">
         <form onSubmit={handleSubmitReport} className="space-y-3">
