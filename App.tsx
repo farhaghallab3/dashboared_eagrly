@@ -19,30 +19,30 @@ import Reports from './pages/Reports';
 import ReportDetails from './pages/ReportDetails';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) {
-    return <div className="flex h-screen w-full items-center justify-center bg-[#112120] text-primary font-bold tracking-widest animate-pulse">LOADING REMOTE+...</div>;
-  }
+    if (isLoading) {
+        return <div className="flex h-screen w-full items-center justify-center bg-[#112120] text-primary font-bold tracking-widest animate-pulse">LOADING EAGERLY...</div>;
+    }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
 
-  return <>{children}</>;
+    return <>{children}</>;
 };
 
 const AppRoutes = () => {
     return (
         <Routes>
             <Route path="/login" element={<Login />} />
-            
+
             <Route path="/" element={
                 <ProtectedRoute>
                     <Dashboard />
                 </ProtectedRoute>
             } />
-            
+
             <Route path="/users" element={
                 <ProtectedRoute>
                     <Users />
@@ -65,7 +65,7 @@ const AppRoutes = () => {
                     <Chat />
                 </ProtectedRoute>
             } />
-            
+
             <Route path="/categories" element={
                 <ProtectedRoute>
                     <Categories />
@@ -94,7 +94,7 @@ const AppRoutes = () => {
                     <ReportDetails />
                 </ProtectedRoute>
             } />
-            
+
             <Route path="/analytics" element={<ProtectedRoute><div className="flex items-center justify-center h-full text-white text-2xl font-bold opacity-50">Analytics Module Coming Soon</div></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><div className="flex items-center justify-center h-full text-white text-2xl font-bold opacity-50">Settings Module Coming Soon</div></ProtectedRoute>} />
 
@@ -110,13 +110,13 @@ function App() {
             try {
                 console.error('Global error', ev.error || ev.message || ev);
                 toast.error(`Unexpected error: ${ev.message || (ev.error && ev.error.message) || 'see console'}`);
-            } catch (e) {}
+            } catch (e) { }
         };
         const onRejection = (ev: any) => {
             try {
                 console.error('Unhandled rejection', ev.reason || ev);
                 toast.error(`Unhandled rejection: ${String((ev && ev.reason) || ev)}`);
-            } catch (e) {}
+            } catch (e) { }
         };
         window.addEventListener('error', onError as any);
         window.addEventListener('unhandledrejection', onRejection as any);
@@ -125,28 +125,28 @@ function App() {
             window.removeEventListener('unhandledrejection', onRejection as any);
         };
     }, []);
-  return (
-    <ErrorBoundary>
-      <AuthProvider>
-        <Router>
-            <Toaster position="top-right" toastOptions={{
-                style: {
-                    background: '#1a2c2b',
-                    color: '#fff',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                },
-                success: {
-                    iconTheme: {
-                        primary: '#27e7dd',
-                        secondary: '#112120',
-                    },
-                },
-            }}/>
-            <AppRoutes />
-        </Router>
-      </AuthProvider>
-    </ErrorBoundary>
-  );
+    return (
+        <ErrorBoundary>
+            <AuthProvider>
+                <Router>
+                    <Toaster position="top-right" toastOptions={{
+                        style: {
+                            background: '#1a2c2b',
+                            color: '#fff',
+                            border: '1px solid rgba(255,255,255,0.1)'
+                        },
+                        success: {
+                            iconTheme: {
+                                primary: '#27e7dd',
+                                secondary: '#112120',
+                            },
+                        },
+                    }} />
+                    <AppRoutes />
+                </Router>
+            </AuthProvider>
+        </ErrorBoundary>
+    );
 }
 
 export default App;

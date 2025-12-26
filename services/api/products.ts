@@ -31,7 +31,7 @@ export async function getProduct(id: number | string) {
 
 export async function updateProduct(id: number | string, payload: Record<string, any> | FormData, options?: { usePut?: boolean }) {
   if (payload instanceof FormData) {
-    const res = await api.put(`/products/${id}/`, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+    const res = await api.patch(`/products/${id}/`, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
     return res.data;
   }
 

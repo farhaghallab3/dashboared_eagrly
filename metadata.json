@@ -1,5 +1,5 @@
 {
-  "name": "Remote+ Admin",
-  "description": "A pixel-perfect, feature-rich Admin Dashboard for Remote+ utilizing React, TailwindCSS, and TypeScript with full CRUD capabilities.",
+  "name": "Eagerly Admin",
+  "description": "A pixel-perfect, feature-rich Admin Dashboard for Eagerly utilizing React, TailwindCSS, and TypeScript with full CRUD capabilities.",
   "requestFramePermissions": []
 }

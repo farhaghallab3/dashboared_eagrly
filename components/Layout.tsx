@@ -1,29 +1,28 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  MdDashboard, 
-  MdGroup, 
-  MdInventory2, 
-  MdShoppingCart, 
-  MdBarChart, 
-  MdSettings, 
+import {
+  MdDashboard,
+  MdGroup,
+  MdInventory2,
+  MdShoppingCart,
+  MdBarChart,
+  MdSettings,
   MdLogout,
   MdCategory,
   MdCardGiftcard,
   MdPayments
-  ,MdReport
+  , MdReport
 } from 'react-icons/md';
 import { useAuth } from '../context/AuthContext';
 
 const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
-    <Link
+  <Link
     to={to}
-    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-      active 
-        ? 'bg-primary/20 text-primary' 
+    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${active
+        ? 'bg-primary/20 text-primary'
         : 'text-white/80 hover:bg-white/5'
-    }`}
-    >
+      }`}
+  >
     <span className="text-xl"><Icon /></span>
     <p className="text-sm font-medium leading-normal">{label}</p>
   </Link>
@@ -47,10 +46,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </div>
               <div className="flex flex-col">
                 <h1 className="text-white text-base font-medium leading-normal">Admin</h1>
-                <p className="text-primary/70 text-sm font-normal leading-normal">Eagrely</p>
+                <p className="text-primary/70 text-sm font-normal leading-normal">Eagerly</p>
               </div>
             </div>
-            
+
             <nav className="flex flex-col gap-2 overflow-y-auto pr-2">
               <SidebarItem to="/" icon={MdDashboard} label="Overview" active={isActive('/')} />
               <SidebarItem to="/users" icon={MdGroup} label="Users" active={isActive('/users')} />
@@ -65,7 +64,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </nav>
 
             <div className="mt-auto flex flex-col gap-1">
-              <button 
+              <button
                 onClick={() => {
                   try {
                     logout();
@@ -85,7 +84,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col p-6 lg:p-8 overflow-y-auto h-screen">
-            {children}
+          {children}
         </main>
       </div>
     </div>
