@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Product } from '../types';
 import toast from 'react-hot-toast';
+import * as productsApi from '../services/api/products';
 
 const productSchema = z.object({
   title: z.string().min(3),
@@ -31,11 +32,10 @@ const Products: React.FC = () => {
   const { data: products, loading: isLoading, error, opState, createItem, updateItem, deleteItem, refetch } = useAdminProducts();
   const navigate = useNavigate();
   const { user } = useAuth();
-  console.log(user);
 
   const { data: categories } = useAdminCategories();
   const [selectedCategory, setSelectedCategory] = useState<number | ''>('');
-  const [statusFilter, setStatusFilter] = useState<'active' | 'inactive' | 'pending' | ''>('');
+  const [statusFilter, setStatusFilter] = useState<'active' | 'inactive' | 'pending' | ''>('pending');
   const [timeFilter, setTimeFilter] = useState<'24h' | '7d' | '30d' | '1y' | 'newest' | 'oldest' | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,6 +43,7 @@ const Products: React.FC = () => {
   const [imageFiles, setImageFiles] = useState<FileList | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
 
   const { register, handleSubmit, reset, setValue } = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
@@ -81,6 +82,19 @@ const Products: React.FC = () => {
   const doRefetch = useCallback(() => {
     refetch(getFilterParams());
   }, [refetch, getFilterParams]);
+
+  // Fetch pending count separately (always, regardless of current filter)
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      try {
+        const items = await productsApi.fetchProducts({ status: 'pending' });
+        setPendingCount(items.length);
+      } catch (err) {
+        console.error('Failed to fetch pending count:', err);
+      }
+    };
+    fetchPendingCount();
+  }, [products]); // Re-fetch when products change (after approve/reject/etc)
 
   // Automatically refetch when any filter changes
   useEffect(() => {
@@ -295,7 +309,7 @@ const Products: React.FC = () => {
       </div>
 
       {/* Pending Ads Alert Section */}
-      {pendingProducts.length > 0 && (
+      {pendingCount > 0 && (
         <div className="mb-6 rounded-xl border-2 border-yellow-500/30 bg-yellow-500/5 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -304,7 +318,7 @@ const Products: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">Pending Ads Awaiting Approval</h2>
-                <p className="text-white/60 text-sm">{pendingProducts.length} ads need your review</p>
+                <p className="text-white/60 text-sm">{pendingCount} ads need your review</p>
               </div>
             </div>
             {selectedProducts.size > 0 && (
@@ -348,7 +362,7 @@ const Products: React.FC = () => {
           onClick={() => { setStatusFilter('pending'); doRefetch(); }}
           className={`px-4 py-2 rounded font-medium transition ${statusFilter === 'pending' ? 'bg-yellow-500 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}
         >
-          Pending ({pendingProducts.length})
+          Pending ({pendingCount})
         </button>
         <button
           onClick={() => { setStatusFilter('active'); doRefetch(); }}
@@ -606,12 +620,16 @@ const Products: React.FC = () => {
             </div>
             <div>
               <label className="text-sm text-white/80">Status</label>
-              <select {...register('status')} disabled={!(user && user.role === 'admin')} className="w-full bg-black/20 border border-white/10 rounded p-2 text-white">
+              <select
+                {...register('status')}
+                disabled={!(user && (user.role === 'admin' || (user as any).is_staff || (user as any).is_superuser))}
+                className="w-full bg-black/20 border border-white/10 rounded p-2 text-white"
+              >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
                 <option value="pending">Pending</option>
               </select>
-              {!(user && user.role === 'admin') && <p className="text-xs text-white/50 mt-1">Products created by regular users are set to <strong>inactive</strong> and must be activated by an admin.</p>}
+              {!(user && (user.role === 'admin' || (user as any).is_staff || (user as any).is_superuser)) && <p className="text-xs text-white/50 mt-1">Products created by regular users are set to <strong>inactive</strong> and must be activated by an admin.</p>}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 items-center">
