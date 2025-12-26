@@ -17,6 +17,7 @@ import Packages from './pages/Packages';
 import Payments from './pages/Payments';
 import Reports from './pages/Reports';
 import ReportDetails from './pages/ReportDetails';
+import Analytics from './pages/Analytics';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, isLoading } = useAuth();
@@ -95,7 +96,7 @@ const AppRoutes = () => {
                 </ProtectedRoute>
             } />
 
-            <Route path="/analytics" element={<ProtectedRoute><div className="flex items-center justify-center h-full text-white text-2xl font-bold opacity-50">Analytics Module Coming Soon</div></ProtectedRoute>} />
+            <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><div className="flex items-center justify-center h-full text-white text-2xl font-bold opacity-50">Settings Module Coming Soon</div></ProtectedRoute>} />
 
             <Route path="*" element={<div className="flex h-screen items-center justify-center bg-[#112120] text-white flex-col gap-4"><h1 className="text-6xl font-bold text-primary">404</h1><p>Page Not Found</p></div>} />

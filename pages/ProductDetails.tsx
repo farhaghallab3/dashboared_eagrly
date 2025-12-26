@@ -131,7 +131,7 @@ const ProductDetails: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-4 mb-6">
-              <div className="text-3xl font-bold text-white">${product.price}</div>
+              <div className="text-3xl font-bold text-white">{product.price} EGP</div>
               <button onClick={handleChat} className="bg-primary text-[#112120] rounded px-4 py-2 font-bold">Chat with owner</button>
             </div>
 

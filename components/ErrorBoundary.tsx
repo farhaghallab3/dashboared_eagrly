@@ -1,6 +1,5 @@
 import React from 'react';
 import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
 
 interface State {
   hasError: boolean;
@@ -33,6 +32,10 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, State> 
     window.location.reload();
   };
 
+  handleGoToLogin = () => {
+    window.location.href = '/#/login';
+  };
+
   render() {
     if (this.state.hasError) {
       return (
@@ -42,7 +45,7 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, State> 
             <p className="text-white/70 mb-4">An unexpected error occurred. You can reload the page or go back to login.</p>
             <div className="flex gap-3">
               <button onClick={this.handleReload} className="bg-primary px-4 py-2 rounded font-bold text-[#112120]">Reload</button>
-              <Link to="/login" className="px-4 py-2 rounded border border-white/10 text-white">Go to Login</Link>
+              <button onClick={this.handleGoToLogin} className="px-4 py-2 rounded border border-white/10 text-white">Go to Login</button>
             </div>
             <details className="mt-4 text-xs text-white/50">
               <summary>Technical details</summary>
