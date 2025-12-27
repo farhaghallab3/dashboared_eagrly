@@ -59,49 +59,77 @@ const ReportDetails: React.FC = () => {
     <Layout>
       <div className="max-w-3xl">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-white">Report Details</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Report Details</h1>
           <div className="flex gap-2">
-            <button onClick={() => navigate('/reports')} className="px-3 py-1 rounded border border-white/10 text-white">Back</button>
-            <button onClick={markResolved} disabled={saving || loading} className="px-3 py-1 rounded bg-green-500 text-black font-bold">Resolve</button>
-            <button onClick={removeReport} disabled={saving || loading} className="px-3 py-1 rounded bg-red-600 text-white">Delete</button>
+            <button
+              onClick={() => navigate('/reports')}
+              className="px-3 py-1 rounded"
+              style={{
+                border: '1px solid var(--border-color)',
+                color: 'var(--text-primary)',
+                backgroundColor: 'var(--hover-bg)'
+              }}
+            >
+              Back
+            </button>
+            <button
+              onClick={markResolved}
+              disabled={saving || loading}
+              className="px-3 py-1 rounded bg-green-500 text-black font-bold"
+            >
+              Resolve
+            </button>
+            <button
+              onClick={removeReport}
+              disabled={saving || loading}
+              className="px-3 py-1 rounded bg-red-600 text-white"
+            >
+              Delete
+            </button>
           </div>
         </div>
 
         {loading ? (
-          <div className="text-white/70">Loading...</div>
+          <div style={{ color: 'var(--text-secondary)' }}>Loading...</div>
         ) : report ? (
-          <div className="space-y-4 bg-white/2 p-4 rounded">
+          <div
+            className="space-y-4 p-4 rounded"
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border-color)'
+            }}
+          >
             <div>
-              <h2 className="text-sm text-white/80">ID</h2>
-              <p className="text-white font-medium">{report.id}</p>
+              <h2 className="text-sm" style={{ color: 'var(--text-secondary)' }}>ID</h2>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{report.id}</p>
             </div>
             <div>
-              <h2 className="text-sm text-white/80">Product</h2>
-              <p className="text-white font-medium">{report.product_name ?? report.product}</p>
+              <h2 className="text-sm" style={{ color: 'var(--text-secondary)' }}>Product</h2>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{report.product_name ?? report.product}</p>
             </div>
             <div>
-              <h2 className="text-sm text-white/80">Reporter</h2>
-              <p className="text-white font-medium">{report.reporter_name ?? report.reporter}</p>
+              <h2 className="text-sm" style={{ color: 'var(--text-secondary)' }}>Reporter</h2>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{report.reporter_name ?? report.reporter}</p>
             </div>
             <div>
-              <h2 className="text-sm text-white/80">Reason</h2>
-              <p className="text-white font-medium">{report.reason}</p>
+              <h2 className="text-sm" style={{ color: 'var(--text-secondary)' }}>Reason</h2>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{report.reason}</p>
             </div>
             <div>
-              <h2 className="text-sm text-white/80">Details</h2>
-              <p className="text-white/80 whitespace-pre-wrap">{report.details || '-'}</p>
+              <h2 className="text-sm" style={{ color: 'var(--text-secondary)' }}>Details</h2>
+              <p className="whitespace-pre-wrap" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>{report.details || '-'}</p>
             </div>
             <div>
-              <h2 className="text-sm text-white/80">Status</h2>
-              <p className="text-white font-medium">{report.status}</p>
+              <h2 className="text-sm" style={{ color: 'var(--text-secondary)' }}>Status</h2>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{report.status}</p>
             </div>
             <div>
-              <h2 className="text-sm text-white/80">Created</h2>
-              <p className="text-white font-medium">{new Date(report.created_at || '').toLocaleString()}</p>
+              <h2 className="text-sm" style={{ color: 'var(--text-secondary)' }}>Created</h2>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{new Date(report.created_at || '').toLocaleString()}</p>
             </div>
           </div>
         ) : (
-          <div className="text-white/70">Report not found</div>
+          <div style={{ color: 'var(--text-secondary)' }}>Report not found</div>
         )}
       </div>
     </Layout>

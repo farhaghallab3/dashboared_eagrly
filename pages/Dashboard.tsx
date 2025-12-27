@@ -1,18 +1,28 @@
 import React from 'react';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Cell, PieChart, Pie
+  BarChart, Bar, Cell, PieChart, Pie, CartesianGrid, Legend
 } from 'recharts';
 import { MdAdd, MdDownload } from 'react-icons/md';
 import Layout from '../components/Layout';
 import { useDashboardStats } from '../hooks/useStatistics';
 import { getProducts } from '../services/apiClient';
+import { useTheme } from '../context/ThemeContext';
 
 const StatCard = ({ title, value, change, isNegative = false, isLoading = false }: any) => (
-  <div className="flex flex-1 flex-col gap-2 rounded-xl border border-white/10 bg-white/5 p-6">
-    <p className="text-white/80 text-base font-medium leading-normal">{title}</p>
-    <p className="text-white tracking-tight text-3xl font-bold leading-tight">{isLoading ? <span className="inline-block w-8 h-8 border-4 border-t-transparent rounded-full animate-spin border-white/30" /> : value}</p>
-    <p className={`${isNegative ? 'text-red-400' : 'text-primary'} text-base font-medium leading-normal`}>
+  <div
+    className="flex flex-1 flex-col gap-3 rounded-2xl backdrop-blur-xl p-6 transition-all duration-300 hover:shadow-lg"
+    style={{
+      border: '1px solid var(--border-color)',
+      backgroundColor: 'var(--bg-card)',
+      boxShadow: 'var(--card-hover-shadow)'
+    }}
+  >
+    <p style={{ color: 'var(--text-secondary)' }} className="text-sm font-medium leading-normal uppercase tracking-wide">{title}</p>
+    <p style={{ color: 'var(--text-primary)' }} className="tracking-tight text-3xl font-bold leading-tight">
+      {isLoading ? <span className="inline-block w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--accent-primary)' }} /> : value}
+    </p>
+    <p className="text-sm font-medium leading-normal" style={{ color: isNegative ? '#ef4444' : 'var(--accent-primary)' }}>
       {change}
     </p>
   </div>
@@ -115,25 +125,40 @@ const Dashboard: React.FC = () => {
   return (
     <Layout>
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-white text-3xl font-bold leading-tight tracking-tight">Admin Dashboard</h1>
-          <p className="text-white/60 text-base font-normal leading-normal">Welcome back, here's a summary of your store's performance.</p>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col gap-2">
+          <h1 style={{ color: 'var(--text-primary)' }} className="text-4xl font-bold leading-tight tracking-tight">Admin Dashboard</h1>
+          <p style={{ color: 'var(--text-secondary)' }} className="text-base font-normal leading-normal">Welcome back, here's a summary of your store's performance.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="flex items-center justify-center gap-2 rounded-lg bg-primary/20 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/30 transition">
+        <div className="flex items-center gap-3">
+          <button
+            className="flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold hover:shadow-lg transition-all duration-300"
+            style={{
+              background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+              color: 'var(--bg-primary)'
+            }}
+          >
             <MdAdd />
             <span>Add Widget</span>
           </button>
-          <button onClick={handleExportProducts} disabled={statsLoading || exporting} className="flex items-center justify-center gap-2 rounded-lg border border-white/20 bg-transparent px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/5 transition disabled:opacity-50">
-            {exporting ? <span className="inline-block w-4 h-4 border-2 border-t-transparent rounded-full animate-spin border-white/30" /> : <MdDownload />}
+          <button
+            onClick={handleExportProducts}
+            disabled={statsLoading || exporting}
+            className="flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-medium transition-all duration-300 disabled:opacity-50"
+            style={{
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--hover-bg)',
+              color: 'var(--accent-primary)'
+            }}
+          >
+            {exporting ? <span className="inline-block w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--accent-primary)' }} /> : <MdDownload />}
             <span>{exporting ? ' PDF...' : 'Export Products (PDF)'}</span>
           </button>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <StatCard title="Total Products" value={`${stats?.products?.total || 0}`} change={`+${stats?.products?.last_30_days || 0} this month`} isLoading={statsLoading} />
         <StatCard title="New Users" value={`${stats?.users?.total || 0}`} change={`+${stats?.users?.last_30_days || 0} this month`} isLoading={statsLoading} />
         <StatCard title="Pending Ads" value={`${stats?.products?.pending || 0}`} change="" isLoading={statsLoading} />
@@ -141,52 +166,107 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Products by Category */}
-        <div className="flex flex-1 flex-col gap-2 rounded-xl border border-white/10 bg-white/5 p-6">
+        <div
+          className="flex flex-1 flex-col gap-3 rounded-2xl backdrop-blur-xl p-6 transition-all duration-300 hover:shadow-lg"
+          style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}
+        >
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-white/80 text-base font-medium leading-normal">Products by Category</p>
-              <p className="text-white tracking-tight text-[32px] font-bold leading-tight truncate">{stats?.products?.total || 0} Total</p>
+              <p style={{ color: 'var(--text-secondary)' }} className="text-sm font-medium leading-normal uppercase tracking-wide">Products by Category</p>
+              <p style={{ color: 'var(--text-primary)' }} className="tracking-tight text-3xl font-bold leading-tight mt-1">{stats?.products?.total || 0} Total</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--accent-primary)' }}></span>
+                <span style={{ color: 'var(--text-secondary)' }} className="text-xs">Primary</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--accent-secondary)' }}></span>
+                <span style={{ color: 'var(--text-secondary)' }} className="text-xs">Secondary</span>
+              </div>
             </div>
           </div>
-          <div className="h-[200px] w-full mt-4">
+          <div className="h-[220px] w-full mt-4">
             {statsLoading ? (
               <div className="flex items-center justify-center h-full">
-                <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin border-white/30"></div>
+                <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin border-primary/40"></div>
               </div>
             ) : productsByCategory.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={productsByCategory}>
-                  <Tooltip
-                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                    contentStyle={{ backgroundColor: '#112120', borderColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
+                <BarChart data={productsByCategory} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 255, 218, 0.1)" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#8892b0', fontSize: 11 }}
                   />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#8892b0', fontSize: 11 }}
+                    allowDecimals={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: 'rgba(100, 255, 218, 0.08)' }}
+                    contentStyle={{
+                      backgroundColor: '#0f1627',
+                      borderColor: 'rgba(100, 255, 218, 0.3)',
+                      color: '#fff',
+                      borderRadius: '12px',
+                      boxShadow: '0 8px 32px rgba(100, 255, 218, 0.15)'
+                    }}
+                    labelStyle={{ color: '#64ffda', fontWeight: 600 }}
+                    formatter={(value: any) => [`${value} products`, 'Count']}
+                  />
+                  <Bar dataKey="value" radius={[8, 8, 0, 0]} maxBarSize={50}>
                     {productsByCategory.map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#27e7dd' : 'rgba(39, 231, 221, 0.5)'} />
+                      <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#64ffda' : '#00c2ff'} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-full text-white/40">No category data yet</div>
+              <div className="flex items-center justify-center h-full text-[#8892b0]">No category data yet</div>
             )}
           </div>
+          {/* Category List */}
+          {productsByCategory.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2 pt-4 border-t border-primary/10">
+              {productsByCategory.map((cat: any, index: number) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 rounded-full text-xs font-medium border"
+                  style={{
+                    backgroundColor: index % 2 === 0 ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0, 194, 255, 0.1)',
+                    borderColor: index % 2 === 0 ? 'rgba(100, 255, 218, 0.3)' : 'rgba(0, 194, 255, 0.3)',
+                    color: index % 2 === 0 ? '#64ffda' : '#00c2ff'
+                  }}
+                >
+                  {cat.name}: {cat.value}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Products by Status */}
-        <div className="flex flex-1 flex-col gap-2 rounded-xl border border-white/10 bg-white/5 p-6">
+        <div
+          className="flex flex-1 flex-col gap-3 rounded-2xl backdrop-blur-xl p-6"
+          style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}
+        >
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-white/80 text-base font-medium leading-normal">Products by Status</p>
-              <p className="text-white tracking-tight text-[32px] font-bold leading-tight truncate">{stats?.products?.total || 0} Ads</p>
+              <p style={{ color: 'var(--text-secondary)' }} className="text-sm font-medium leading-normal uppercase tracking-wide">Products by Status</p>
+              <p style={{ color: 'var(--text-primary)' }} className="tracking-tight text-3xl font-bold leading-tight mt-1">{stats?.products?.total || 0} Ads</p>
             </div>
           </div>
           <div className="h-[200px] w-full mt-4">
             {statsLoading ? (
               <div className="flex items-center justify-center h-full">
-                <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin border-white/30"></div>
+                <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin border-primary/40"></div>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -205,7 +285,7 @@ const Dashboard: React.FC = () => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: '#112120', borderColor: 'rgba(255,255,255,0.1)', color: '#fff' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0f1627', borderColor: 'rgba(100, 255, 218, 0.2)', color: '#fff', borderRadius: '12px' }} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -215,25 +295,25 @@ const Dashboard: React.FC = () => {
 
       {/* Top Sellers Section */}
       {stats?.sellers?.top_sellers && stats.sellers.top_sellers.length > 0 ? (
-        <div className="flex flex-col rounded-xl border border-white/10 bg-white/5">
-          <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <h2 className="text-white text-lg font-bold">Top Sellers</h2>
+        <div className="flex flex-col rounded-2xl backdrop-blur-xl overflow-hidden" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+          <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid var(--border-color)' }}>
+            <h2 style={{ color: 'var(--text-primary)' }} className="text-xl font-bold">Top Sellers</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-white/60">
-                  <th className="p-4 font-medium">Seller</th>
-                  <th className="p-4 font-medium">Username</th>
-                  <th className="p-4 font-medium text-right">Products</th>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+                  <th className="p-4 font-semibold uppercase tracking-wide text-xs">Seller</th>
+                  <th className="p-4 font-semibold uppercase tracking-wide text-xs">Username</th>
+                  <th className="p-4 font-semibold uppercase tracking-wide text-xs text-right">Products</th>
                 </tr>
               </thead>
               <tbody>
                 {stats.sellers.top_sellers.map((seller: any) => (
-                  <tr key={seller.id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-                    <td className="p-4 text-white/80">{seller.first_name || 'Unknown'} {seller.last_name || ''}</td>
-                    <td className="p-4 text-primary font-medium">{seller.username}</td>
-                    <td className="p-4 text-white/80 text-right">{seller.product_count}</td>
+                  <tr key={seller.id} className="transition-all duration-300" style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td className="p-4" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>{seller.first_name || 'Unknown'} {seller.last_name || ''}</td>
+                    <td className="p-4 font-medium" style={{ color: 'var(--accent-primary)' }}>{seller.username}</td>
+                    <td className="p-4 text-right font-semibold" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>{seller.product_count}</td>
                   </tr>
                 ))}
               </tbody>
@@ -241,8 +321,8 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col rounded-xl border border-white/10 bg-white/5 p-8 text-center">
-          <p className="text-white/40">No seller data available yet</p>
+        <div className="flex flex-col rounded-2xl backdrop-blur-xl p-8 text-center" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+          <p style={{ color: 'var(--text-secondary)' }}>No seller data available yet</p>
         </div>
       )}
     </Layout>

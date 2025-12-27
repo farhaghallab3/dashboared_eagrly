@@ -42,8 +42,8 @@ const ProductDetails: React.FC = () => {
   // Reviews hook
   const { data: reviews, loading: reviewsLoading, createItem: createReview, deleteItem: deleteReview, opState: reviewsOpState, fetch: fetchReviews } = useProductReviews(id as any);
 
-  if (loading) return <Layout><div className="p-8 text-white">Loading...</div></Layout>;
-  if (!product) return <Layout><div className="p-8 text-white">Product not found</div></Layout>;
+  if (loading) return <Layout><div className="p-8" style={{ color: 'var(--text-primary)' }}>Loading...</div></Layout>;
+  if (!product) return <Layout><div className="p-8" style={{ color: 'var(--text-primary)' }}>Product not found</div></Layout>;
 
   const seller = (product as any).seller && typeof (product as any).seller === 'object' ? (product as any).seller : {
     id: product.seller,
@@ -119,27 +119,27 @@ const ProductDetails: React.FC = () => {
           </div>
 
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-white">{product.title}</h1>
-            <p className="text-sm text-white/60 mb-2">{product.category_name}</p>
-            <p className="text-white/80 mb-4">{product.description}</p>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{product.title}</h1>
+            <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>{product.category_name}</p>
+            <p className="mb-4" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>{product.description}</p>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="text-white/80">Condition: <span className="text-white">{product.condition}</span></div>
-              <div className="text-white/80">University: <span className="text-white">{product.university || '-'}</span></div>
-              <div className="text-white/80">Faculty: <span className="text-white">{product.faculty || '-'}</span></div>
-              <div className="text-white/80">Featured: <span className="text-white">{product.is_featured ? 'Yes' : 'No'}</span></div>
+              <div style={{ color: 'var(--text-secondary)' }}>Condition: <span style={{ color: 'var(--text-primary)' }}>{product.condition}</span></div>
+              <div style={{ color: 'var(--text-secondary)' }}>University: <span style={{ color: 'var(--text-primary)' }}>{product.university || '-'}</span></div>
+              <div style={{ color: 'var(--text-secondary)' }}>Faculty: <span style={{ color: 'var(--text-primary)' }}>{product.faculty || '-'}</span></div>
+              <div style={{ color: 'var(--text-secondary)' }}>Featured: <span style={{ color: 'var(--text-primary)' }}>{product.is_featured ? 'Yes' : 'No'}</span></div>
             </div>
 
             <div className="flex items-center gap-4 mb-6">
-              <div className="text-3xl font-bold text-white">{product.price} EGP</div>
-              <button onClick={handleChat} className="bg-primary text-[#112120] rounded px-4 py-2 font-bold">Chat with owner</button>
+              <div className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>{product.price} EGP</div>
+              <button onClick={handleChat} className="rounded px-4 py-2 font-bold" style={{ background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'var(--bg-primary)' }}>Chat with owner</button>
             </div>
 
-            <div className="mt-6 p-4 rounded bg-white/5 border border-white/10">
-              <h3 className="text-white font-semibold mb-2">Owner Contact</h3>
-              <p className="text-white/80">Name: {seller.first_name || seller.name || 'Owner'}</p>
-              <p className="text-white/80">Phone: Contact for details</p>
-              <p className="text-white/80">Email: {seller.email || '-'}</p>
+            <div className="mt-6 p-4 rounded" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+              <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Owner Contact</h3>
+              <p style={{ color: 'var(--text-secondary)' }}>Name: {seller.first_name || seller.name || 'Owner'}</p>
+              <p style={{ color: 'var(--text-secondary)' }}>Phone: Contact for details</p>
+              <p style={{ color: 'var(--text-secondary)' }}>Email: {seller.email || '-'}</p>
             </div>
 
           </div>
@@ -151,8 +151,8 @@ const ProductDetails: React.FC = () => {
       <Modal isOpen={isReportOpen} onClose={() => setIsReportOpen(false)} title="Report this product">
         <form onSubmit={handleSubmitReport} className="space-y-3">
           <div>
-            <label className="text-sm text-white/80">Reason</label>
-            <select value={reportReason} onChange={(e) => setReportReason(e.target.value)} className="w-full bg-black/20 p-2 rounded text-white">
+            <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Reason</label>
+            <select value={reportReason} onChange={(e) => setReportReason(e.target.value)} className="w-full p-2 rounded" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
               <option value="">Select reason</option>
               <option value="spam">Spam or scam</option>
               <option value="fraud">Fraudulent listing</option>
@@ -161,12 +161,12 @@ const ProductDetails: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className="text-sm text-white/80">Details</label>
-            <textarea value={reportDetails} onChange={(e) => setReportDetails(e.target.value)} className="w-full bg-black/20 p-2 rounded text-white h-28" />
+            <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Details</label>
+            <textarea value={reportDetails} onChange={(e) => setReportDetails(e.target.value)} className="w-full p-2 rounded h-28" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} />
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="bg-primary text-[#112120] px-4 py-2 rounded font-bold">Send Report</button>
-            <button type="button" onClick={() => setIsReportOpen(false)} className="px-4 py-2 rounded border border-white/10 text-white">Cancel</button>
+            <button type="submit" className="px-4 py-2 rounded font-bold" style={{ background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'var(--bg-primary)' }}>Send Report</button>
+            <button type="button" onClick={() => setIsReportOpen(false)} className="px-4 py-2 rounded" style={{ border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>Cancel</button>
           </div>
         </form>
       </Modal>

@@ -1,0 +1,116 @@
+/* Admin Dashboard Theme System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    /* Dark Theme (Default) */
+    --bg-primary: #0a0f1a;
+    --bg-secondary: #0f1627;
+    --bg-card: rgba(15, 26, 36, 0.95);
+    --text-primary: #ffffff;
+    --text-secondary: #8892b0;
+    --accent-primary: #64ffda;
+    --accent-secondary: #00c2ff;
+    --border-color: rgba(100, 255, 218, 0.2);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --input-bg: rgba(10, 25, 47, 0.5);
+    --input-focus-bg: rgba(100, 255, 218, 0.05);
+    --glass-bg: rgba(15, 26, 36, 0.7);
+    --gradient-overlay: linear-gradient(135deg, rgba(10, 15, 26, 0.9) 0%, rgba(15, 22, 39, 0.95) 100%);
+    --hover-bg: rgba(255, 255, 255, 0.05);
+    --card-hover-shadow: rgba(100, 255, 218, 0.1);
+}
+
+[data-theme='light'] {
+    /* Light Theme - Matching Main Website */
+    --bg-primary: #f0f4f8;
+    --bg-secondary: #ffffff;
+    --bg-card: rgba(255, 255, 255, 0.95);
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --accent-primary: #00b4d8;
+    --accent-secondary: #0077b6;
+    --border-color: rgba(0, 180, 216, 0.2);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --input-bg: rgba(255, 255, 255, 0.8);
+    --input-focus-bg: rgba(0, 180, 216, 0.05);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --gradient-overlay: linear-gradient(135deg, rgba(240, 244, 248, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%);
+    --hover-bg: rgba(0, 0, 0, 0.05);
+    --card-hover-shadow: rgba(0, 180, 216, 0.15);
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Background pattern - Dark mode */
+:root body {
+    background-image:
+        radial-gradient(circle at 30% 40%, rgba(100, 255, 218, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 70% 60%, rgba(0, 194, 255, 0.06) 0%, transparent 50%),
+        linear-gradient(135deg, #0a0f1a 0%, #0f1627 50%, #0a0f1a 100%);
+}
+
+/* Background pattern - Light mode */
+[data-theme='light'] body {
+    background-image:
+        radial-gradient(circle at 30% 40%, rgba(0, 180, 216, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 70% 60%, rgba(0, 119, 182, 0.04) 0%, transparent 50%),
+        linear-gradient(135deg, #f0f4f8 0%, #ffffff 50%, #f0f4f8 100%);
+}
+
+/* Custom scrollbar - Dark */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* Utility classes for theme-aware elements */
+.theme-bg-primary {
+    background-color: var(--bg-primary);
+}
+
+.theme-bg-secondary {
+    background-color: var(--bg-secondary);
+}
+
+.theme-bg-card {
+    background-color: var(--bg-card);
+}
+
+.theme-text-primary {
+    color: var(--text-primary);
+}
+
+.theme-text-secondary {
+    color: var(--text-secondary);
+}
+
+.theme-border {
+    border-color: var(--border-color);
+}
+
+.theme-accent {
+    color: var(--accent-primary);
+}

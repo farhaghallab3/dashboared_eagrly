@@ -3,8 +3,7 @@ import { AuthResponse } from '../../types';
 
 export async function obtainToken(username: string, password: string): Promise<AuthResponse> {
   const { data } = await api.post<AuthResponse>('/token/', { username, password });
-  console.log(data);
-  
+
   if (data.access) localStorage.setItem('access_token', data.access);
   if (data.refresh) localStorage.setItem('refresh_token', data.refresh);
   return data;

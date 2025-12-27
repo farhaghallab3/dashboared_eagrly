@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 
@@ -128,24 +129,36 @@ function App() {
     }, []);
     return (
         <ErrorBoundary>
-            <AuthProvider>
-                <Router>
-                    <Toaster position="top-right" toastOptions={{
-                        style: {
-                            background: '#1a2c2b',
-                            color: '#fff',
-                            border: '1px solid rgba(255,255,255,0.1)'
-                        },
-                        success: {
-                            iconTheme: {
-                                primary: '#27e7dd',
-                                secondary: '#112120',
+            <ThemeProvider>
+                <AuthProvider>
+                    <Router>
+                        <Toaster position="top-right" toastOptions={{
+                            duration: 3000,
+                            style: {
+                                background: 'var(--bg-secondary)',
+                                color: 'var(--text-primary)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '12px',
                             },
-                        },
-                    }} />
-                    <AppRoutes />
-                </Router>
-            </AuthProvider>
+                            success: {
+                                duration: 3000,
+                                iconTheme: {
+                                    primary: 'var(--accent-primary)',
+                                    secondary: 'var(--bg-primary)',
+                                },
+                            },
+                            error: {
+                                duration: 4000,
+                                iconTheme: {
+                                    primary: '#ef4444',
+                                    secondary: 'var(--bg-primary)',
+                                },
+                            },
+                        }} />
+                        <AppRoutes />
+                    </Router>
+                </AuthProvider>
+            </ThemeProvider>
         </ErrorBoundary>
     );
 }

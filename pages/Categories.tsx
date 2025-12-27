@@ -27,8 +27,6 @@ const Categories: React.FC = () => {
     resolver: zodResolver(categorySchema),
   });
 
-  // useAdminCategories fetches on mount; refetch available via `refetch`
-
   const handleSubmitData = async (data: CategoryForm) => {
     try {
       const formData = new FormData();
@@ -68,8 +66,15 @@ const Categories: React.FC = () => {
   return (
     <Layout>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-white">Categories</h1>
-        <button onClick={() => openModal()} className="flex items-center gap-2 bg-primary text-[#112120] px-4 py-2 rounded-lg font-bold hover:bg-opacity-90 transition">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Categories</h1>
+        <button
+          onClick={() => openModal()}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition"
+          style={{
+            background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+            color: 'var(--bg-primary)'
+          }}
+        >
           <span className="text-xl"><MdAdd /></span> Add Category
         </button>
       </div>
@@ -77,43 +82,73 @@ const Categories: React.FC = () => {
       <Table<Category>
         data={categories}
         columns={[
-          { header: 'Image', accessor: (c) => c.image ? <img src={c.image} alt={c.name} className="h-12 w-12 rounded-lg object-cover border border-white/10" /> : <div className="h-12 w-12 rounded-lg bg-white/5 flex items-center justify-center"><span className="text-white/20"><MdImage /></span></div> },
+          { header: 'Image', accessor: (c) => c.image ? <img src={c.image} alt={c.name} className="h-12 w-12 rounded-lg object-cover" style={{ border: '1px solid var(--border-color)' }} /> : <div className="h-12 w-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--hover-bg)' }}><span style={{ color: 'var(--text-secondary)' }}><MdImage /></span></div> },
           { header: 'Name', accessor: 'name', className: 'font-bold text-base' },
           { header: 'Description', accessor: 'description' },
         ]}
         actions={(cat) => (
           <div className="flex justify-center gap-2">
-              <button onClick={() => openModal(cat)} className="p-2 hover:bg-white/10 rounded-lg text-blue-400 transition" title="Edit"><MdEdit size={18} /></button>
-              <button onClick={async () => {
-                if (!window.confirm('Are you sure you want to delete this category?')) return;
-                try {
-                  await deleteItem(cat.id);
-                  toast.success('Category deleted');
-                } catch (err) {
-                  toast.error('Failed to delete category');
-                }
-              }} className="p-2 hover:bg-white/10 rounded-lg text-red-400 transition" title="Delete" disabled={opState?.deletingId === cat.id}>{opState?.deletingId === cat.id ? 'Deleting...' : <MdDelete size={18} />}</button>
-            </div>
+            <button onClick={() => openModal(cat)} className="p-2 rounded-lg text-blue-400 transition" style={{ backgroundColor: 'var(--hover-bg)' }} title="Edit"><MdEdit size={18} /></button>
+            <button onClick={async () => {
+              if (!window.confirm('Are you sure you want to delete this category?')) return;
+              try {
+                await deleteItem(cat.id);
+                toast.success('Category deleted');
+              } catch (err) {
+                toast.error('Failed to delete category');
+              }
+            }} className="p-2 rounded-lg text-red-400 transition" style={{ backgroundColor: 'var(--hover-bg)' }} title="Delete" disabled={opState?.deletingId === cat.id}>{opState?.deletingId === cat.id ? 'Deleting...' : <MdDelete size={18} />}</button>
+          </div>
         )}
       />
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingCategory ? 'Edit Category' : 'New Category'}>
         <form onSubmit={handleSubmit(handleSubmitData)} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-white/80">Name</label>
-            <input {...register('name')} className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+            <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Name</label>
+            <input
+              {...register('name')}
+              className="w-full rounded-lg px-4 py-2 transition"
+              style={{
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'var(--input-bg)',
+                color: 'var(--text-primary)'
+              }}
+            />
             {errors.name && <p className="text-xs text-red-400 mt-1">{errors.name.message}</p>}
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-white/80">Description</label>
-            <textarea {...register('description')} className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary min-h-[100px]" />
+            <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Description</label>
+            <textarea
+              {...register('description')}
+              className="w-full rounded-lg px-4 py-2 min-h-[100px] transition"
+              style={{
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'var(--input-bg)',
+                color: 'var(--text-primary)'
+              }}
+            />
             {errors.description && <p className="text-xs text-red-400 mt-1">{errors.description.message}</p>}
           </div>
           <div>
-             <label className="mb-1 block text-sm font-medium text-white/80">Category Image</label>
-             <input type="file" onChange={(e) => setSelectedImage(e.target.files?.[0] || null)} className="w-full text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-[#112120] hover:file:bg-primary/80 transition cursor-pointer" />
+            <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Category Image</label>
+            <input
+              type="file"
+              onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
+              className="w-full text-sm cursor-pointer"
+              style={{ color: 'var(--text-primary)' }}
+            />
           </div>
-          <button type="submit" className="w-full rounded-lg bg-primary py-2.5 text-sm font-bold text-[#112120] transition hover:bg-primary/90 mt-4">Save Category</button>
+          <button
+            type="submit"
+            className="w-full rounded-lg py-2.5 text-sm font-bold transition mt-4"
+            style={{
+              background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+              color: 'var(--bg-primary)'
+            }}
+          >
+            Save Category
+          </button>
         </form>
       </Modal>
     </Layout>

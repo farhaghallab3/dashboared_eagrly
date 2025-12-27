@@ -24,30 +24,40 @@ function Table<T extends { id: number | string }>({ data, columns, actions }: Ta
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-white/10 bg-white/5">
+    <div
+      className="overflow-x-auto rounded-2xl backdrop-blur-xl"
+      style={{
+        border: '1px solid var(--border-color)',
+        backgroundColor: 'var(--bg-card)'
+      }}
+    >
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-white/10 text-white/60">
+          <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
             {columns.map((col, idx) => (
-              <th key={idx} className={`p-4 font-medium ${col.className || ''}`}>
+              <th key={idx} className={`p-4 font-semibold uppercase tracking-wide text-xs ${col.className || ''}`}>
                 {col.header}
               </th>
             ))}
-            {actions && <th className="p-4 font-medium text-center">Actions</th>}
+            {actions && <th className="p-4 font-semibold uppercase tracking-wide text-xs text-center">Actions</th>}
           </tr>
         </thead>
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={columns.length + (actions ? 1 : 0)} className="p-8 text-center text-white/40">
+              <td colSpan={columns.length + (actions ? 1 : 0)} className="p-8 text-center" style={{ color: 'var(--text-secondary)' }}>
                 No data found
               </td>
             </tr>
           ) : (
             rows.map((item) => (
-              <tr key={item.id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+              <tr
+                key={item.id}
+                className="transition-all duration-300"
+                style={{ borderBottom: '1px solid var(--border-color)' }}
+              >
                 {columns.map((col, idx) => (
-                  <td key={idx} className={`p-4 text-white/80 ${col.className || ''}`}>
+                  <td key={idx} className={`p-4 ${col.className || ''}`} style={{ color: 'var(--text-primary)', opacity: 0.9 }}>
                     {typeof col.accessor === 'function' ? col.accessor(item) : (item[col.accessor] as React.ReactNode)}
                   </td>
                 ))}

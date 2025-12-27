@@ -115,27 +115,48 @@ const Chat: React.FC = () => {
   return (
     <Layout>
       <div className="p-6 w-full mx-auto">
-        <h2 className="text-white text-2xl mb-2">Chat with {seller_name}</h2>
-        <p className="text-white/60 mb-4">Product: {product}</p>
+        <h2 className="text-2xl mb-2" style={{ color: 'var(--text-primary)' }}>Chat with {seller_name}</h2>
+        <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>Product: {product}</p>
 
-        <div ref={listRef} className="bg-white/5 border border-white/10 rounded p-4 mb-4 h-80 overflow-y-auto">
+        <div ref={listRef} className="rounded p-4 mb-4 h-80 overflow-y-auto" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           {loading ? (
-            <div className="text-white/50">Loading chat...</div>
+            <div style={{ color: 'var(--text-secondary)' }}>Loading chat...</div>
           ) : messages.length === 0 ? (
-            <div className="text-white/60">No messages yet. Start the conversation.</div>
+            <div style={{ color: 'var(--text-secondary)' }}>No messages yet. Start the conversation.</div>
           ) : (
             messages.map(m => (
               <div key={String(m.id)} className={`mb-3 ${m.sender === user?.id ? 'text-right' : 'text-left'}`}>
-                <div className={`inline-block rounded px-3 py-2 ${m.sender === user?.id ? 'bg-primary text-[#112120]' : 'bg-white/10 text-white'}`}>{m.text}</div>
-                <div className="text-xs text-white/50 mt-1">{formatDate(m.created_at)}</div>
+                <div
+                  className="inline-block rounded px-3 py-2"
+                  style={{
+                    backgroundColor: m.sender === user?.id ? 'var(--accent-primary)' : 'var(--hover-bg)',
+                    color: m.sender === user?.id ? 'var(--bg-primary)' : 'var(--text-primary)'
+                  }}
+                >
+                  {m.text}
+                </div>
+                <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{formatDate(m.created_at)}</div>
               </div>
             ))
           )}
         </div>
 
         <div className="flex gap-2">
-          <input value={text} onChange={(e) => setText(e.target.value)} className="flex-1 rounded p-2 bg-black/20 border border-white/10 text-white" placeholder="Write a message..." />
-          <button onClick={sendMessage} disabled={sending || !chatId} className="bg-primary text-[#112120] rounded px-4 py-2 font-bold disabled:opacity-50">{sending ? 'Sending...' : 'Send'}</button>
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className="flex-1 rounded p-2"
+            style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+            placeholder="Write a message..."
+          />
+          <button
+            onClick={sendMessage}
+            disabled={sending || !chatId}
+            className="rounded px-4 py-2 font-bold disabled:opacity-50"
+            style={{ background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'var(--bg-primary)' }}
+          >
+            {sending ? 'Sending...' : 'Send'}
+          </button>
         </div>
       </div>
     </Layout>

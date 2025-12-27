@@ -10,17 +10,20 @@ import {
   MdLogout,
   MdCategory,
   MdCardGiftcard,
-  MdPayments
-  , MdReport
+  MdPayments,
+  MdReport,
+  MdLightMode,
+  MdDarkMode
 } from 'react-icons/md';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link
     to={to}
-    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${active
-        ? 'bg-primary/20 text-primary'
-        : 'text-white/80 hover:bg-white/5'
+    className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-300 ${active
+      ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 shadow-lg shadow-[var(--accent-primary)]/10'
+      : 'text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-[var(--accent-primary)] border border-transparent'
       }`}
   >
     <span className="text-xl"><Icon /></span>
@@ -30,50 +33,97 @@ const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any,
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-background-dark/80 backdrop-blur-sm">
+    <div className="relative flex min-h-screen w-full flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="flex h-full min-h-screen w-full">
         {/* SideNavBar */}
-        <aside className="sticky top-0 h-screen flex w-64 flex-col border-r border-white/10 bg-background-dark/50 p-4">
-          <div className="flex flex-col gap-4 h-full">
-            <div className="flex items-center gap-3 p-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-primary font-bold text-xl">
+        <aside className="sticky top-0 h-screen flex w-72 flex-col border-r p-5"
+          style={{
+            borderColor: 'var(--border-color)',
+            backgroundColor: 'var(--bg-secondary)',
+            backdropFilter: 'blur(12px)'
+          }}>
+          <div className="flex flex-col gap-6 h-full">
+            {/* Logo */}
+            <div className="flex items-center gap-4 p-3 rounded-xl"
+              style={{
+                backgroundColor: 'var(--accent-primary)',
+                opacity: 0.1,
+                border: '1px solid var(--border-color)'
+              }}>
+            </div>
+            <div className="flex items-center gap-4 p-3 rounded-xl -mt-[72px]"
+              style={{
+                backgroundColor: theme === 'dark' ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0, 180, 216, 0.1)',
+                border: '1px solid var(--border-color)'
+              }}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl font-bold text-xl shadow-lg"
+                style={{
+                  background: theme === 'dark'
+                    ? 'linear-gradient(135deg, #64ffda 0%, #00c2ff 100%)'
+                    : 'linear-gradient(135deg, #00b4d8 0%, #0077b6 100%)',
+                  color: theme === 'dark' ? '#0a0f1a' : '#ffffff'
+                }}>
                 E+
               </div>
               <div className="flex flex-col">
-                <h1 className="text-white text-base font-medium leading-normal">Admin</h1>
-                <p className="text-primary/70 text-sm font-normal leading-normal">Eagerly</p>
+                <h1 className="text-lg font-bold leading-normal" style={{ color: 'var(--text-primary)' }}>Admin</h1>
+                <p className="text-sm font-medium leading-normal" style={{ color: 'var(--accent-primary)' }}>Eagerly Dashboard</p>
               </div>
             </div>
 
-            <nav className="flex flex-col gap-2 overflow-y-auto pr-2">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 border"
+              style={{
+                backgroundColor: 'var(--hover-bg)',
+                borderColor: 'var(--border-color)',
+                color: 'var(--text-secondary)'
+              }}
+            >
+              <span className="text-xl">
+                {theme === 'dark' ? <MdLightMode /> : <MdDarkMode />}
+              </span>
+              <p className="text-sm font-medium leading-normal">
+                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </p>
+            </button>
+
+            {/* Navigation */}
+            <nav className="flex flex-col gap-2 overflow-y-auto pr-2 flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wider px-4 mb-2" style={{ color: 'var(--text-secondary)' }}>Main Menu</p>
               <SidebarItem to="/" icon={MdDashboard} label="Overview" active={isActive('/')} />
               <SidebarItem to="/users" icon={MdGroup} label="Users" active={isActive('/users')} />
               <SidebarItem to="/categories" icon={MdCategory} label="Categories" active={isActive('/categories')} />
               <SidebarItem to="/products" icon={MdInventory2} label="Products" active={isActive('/products')} />
               <SidebarItem to="/packages" icon={MdCardGiftcard} label="Packages" active={isActive('/packages')} />
               <SidebarItem to="/payments" icon={MdPayments} label="Payments" active={isActive('/payments')} />
-              <div className="my-2 border-t border-white/10"></div>
+
+              <div className="my-4 border-t" style={{ borderColor: 'var(--border-color)' }}></div>
+              <p className="text-xs font-semibold uppercase tracking-wider px-4 mb-2" style={{ color: 'var(--text-secondary)' }}>Analytics & Settings</p>
               <SidebarItem to="/analytics" icon={MdBarChart} label="Analytics" active={isActive('/analytics')} />
               <SidebarItem to="/settings" icon={MdSettings} label="Settings" active={isActive('/settings')} />
               <SidebarItem to="/reports" icon={MdReport} label="Reports" active={isActive('/reports')} />
             </nav>
 
-            <div className="mt-auto flex flex-col gap-1">
+            {/* Logout */}
+            <div className="mt-auto flex flex-col gap-2 pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
               <button
                 onClick={() => {
                   try {
                     logout();
                   } catch (err) {
-                    // eslint-disable-next-line no-console
                     console.error('Logout failed', err);
                   }
                 }}
-                className="flex items-center gap-3 px-3 py-2 text-white/80 hover:bg-white/5 rounded-lg w-full text-left"
+                className="flex items-center gap-3 px-4 py-3 hover:bg-red-500/10 hover:text-red-400 rounded-xl w-full text-left transition-all duration-300 border border-transparent hover:border-red-500/30"
+                style={{ color: 'var(--text-secondary)' }}
               >
                 <span className="text-xl"><MdLogout /></span>
                 <p className="text-sm font-medium leading-normal">Logout</p>
@@ -83,7 +133,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col p-6 lg:p-8 overflow-y-auto h-screen">
+        <main className="flex-1 flex flex-col p-8 overflow-y-auto h-screen"
+          style={{
+            background: theme === 'dark'
+              ? 'linear-gradient(135deg, #0a0f1a 0%, #0f1627 50%, #0a0f1a 100%)'
+              : 'linear-gradient(135deg, #f0f4f8 0%, #ffffff 50%, #f0f4f8 100%)'
+          }}>
           {children}
         </main>
       </div>

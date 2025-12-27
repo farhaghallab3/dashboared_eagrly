@@ -57,33 +57,70 @@ const Reports: React.FC = () => {
     <Layout>
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center mb-2">
-          <h1 className="text-2xl font-bold text-white">Reports</h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Reports</h1>
           <div className="flex gap-2">
-            <button onClick={() => setIsOpen(true)} className="bg-primary text-[#112120] px-4 py-2 rounded font-bold">New Report</button>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="px-4 py-2 rounded font-bold"
+              style={{
+                background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                color: 'var(--bg-primary)'
+              }}
+            >
+              New Report
+            </button>
           </div>
         </div>
 
-        <div className="flex gap-2 items-center">
-          <input placeholder="Search by id, product or reporter" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} className="bg-black/20 p-2 rounded text-white w-72" />
-          <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }} className="bg-black/20 p-2 rounded text-white">
+        <div className="flex gap-2 items-center flex-wrap">
+          <input
+            placeholder="Search by id, product or reporter"
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            className="p-2 rounded w-72"
+            style={{
+              backgroundColor: 'var(--input-bg)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)'
+            }}
+          />
+          <select
+            value={statusFilter}
+            onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
+            className="p-2 rounded"
+            style={{
+              backgroundColor: 'var(--input-bg)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)'
+            }}
+          >
             <option value="all">All</option>
             <option value="open">Open</option>
             <option value="resolved">Resolved</option>
             <option value="closed">Closed</option>
           </select>
-          <select value={perPage} onChange={e => { setPerPage(Number(e.target.value)); setPage(1); }} className="bg-black/20 p-2 rounded text-white">
+          <select
+            value={perPage}
+            onChange={e => { setPerPage(Number(e.target.value)); setPage(1); }}
+            className="p-2 rounded"
+            style={{
+              backgroundColor: 'var(--input-bg)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)'
+            }}
+          >
             <option value={5}>5</option>
             <option value={10}>10</option>
             <option value={25}>25</option>
             <option value={50}>50</option>
           </select>
-          <div className="ml-auto text-white/70">Total: {total}</div>
+          <div className="ml-auto" style={{ color: 'var(--text-secondary)' }}>Total: {total}</div>
         </div>
 
         <Table<Report>
           data={paginated}
           columns={[
-            { header: 'ID', accessor: (r) => <Link to={`/reports/${r.id}`} className="text-primary">#{r.id}</Link> },
+            { header: 'ID', accessor: (r) => <Link to={`/reports/${r.id}`} style={{ color: 'var(--accent-primary)' }}>#{r.id}</Link> },
             { header: 'Product', accessor: (r) => (r as any).product_name ?? r.product },
             { header: 'Reporter', accessor: (r) => r.reporter_name ?? `User ${r.reporter}` },
             { header: 'Reason', accessor: 'reason' },
@@ -92,7 +129,7 @@ const Reports: React.FC = () => {
           ]}
           actions={(r) => (
             <div className="flex gap-2 items-center justify-center">
-              <Link to={`/reports/${r.id}`} className="text-sm text-primary">View</Link>
+              <Link to={`/reports/${r.id}`} className="text-sm" style={{ color: 'var(--accent-primary)' }}>View</Link>
               <button onClick={async () => {
                 if (!window.confirm('Mark as resolved?')) return;
                 try {
@@ -114,20 +151,57 @@ const Reports: React.FC = () => {
         />
 
         <div className="flex items-center gap-2 justify-center mt-3">
-          <button onClick={() => setPage(p => Math.max(1, p - 1))} className="px-3 py-1 rounded border border-white/10 text-white">Prev</button>
-          <div className="text-white/80">Page {current} / {totalPages}</div>
-          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} className="px-3 py-1 rounded border border-white/10 text-white">Next</button>
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            className="px-3 py-1 rounded"
+            style={{
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)',
+              backgroundColor: 'var(--hover-bg)'
+            }}
+          >
+            Prev
+          </button>
+          <div style={{ color: 'var(--text-secondary)' }}>Page {current} / {totalPages}</div>
+          <button
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            className="px-3 py-1 rounded"
+            style={{
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)',
+              backgroundColor: 'var(--hover-bg)'
+            }}
+          >
+            Next
+          </button>
         </div>
 
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Create Report">
           <form onSubmit={handleSubmit(onCreate)} className="space-y-3">
             <div>
-              <label className="text-sm text-white/80">Product ID</label>
-              <input type="number" {...register('product', { valueAsNumber: true })} className="w-full bg-black/20 p-2 rounded text-white" />
+              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Product ID</label>
+              <input
+                type="number"
+                {...register('product', { valueAsNumber: true })}
+                className="w-full p-2 rounded"
+                style={{
+                  backgroundColor: 'var(--input-bg)',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--text-primary)'
+                }}
+              />
             </div>
             <div>
-              <label className="text-sm text-white/80">Reason</label>
-              <select {...register('reason')} className="w-full bg-black/20 p-2 rounded text-white">
+              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Reason</label>
+              <select
+                {...register('reason')}
+                className="w-full p-2 rounded"
+                style={{
+                  backgroundColor: 'var(--input-bg)',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--text-primary)'
+                }}
+              >
                 <option value="spam">Spam or scam</option>
                 <option value="fraud">Fraudulent listing</option>
                 <option value="inappropriate">Inappropriate</option>
@@ -135,12 +209,40 @@ const Reports: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="text-sm text-white/80">Details</label>
-              <textarea {...register('details')} className="w-full bg-black/20 p-2 rounded text-white h-28" />
+              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Details</label>
+              <textarea
+                {...register('details')}
+                className="w-full p-2 rounded h-28"
+                style={{
+                  backgroundColor: 'var(--input-bg)',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--text-primary)'
+                }}
+              />
             </div>
             <div className="flex gap-2">
-              <button type="submit" className="bg-primary text-[#112120] px-4 py-2 rounded font-bold">Create</button>
-              <button type="button" onClick={() => setIsOpen(false)} className="px-4 py-2 rounded border border-white/10 text-white">Cancel</button>
+              <button
+                type="submit"
+                className="px-4 py-2 rounded font-bold"
+                style={{
+                  background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                  color: 'var(--bg-primary)'
+                }}
+              >
+                Create
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="px-4 py-2 rounded"
+                style={{
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--text-primary)',
+                  backgroundColor: 'var(--hover-bg)'
+                }}
+              >
+                Cancel
+              </button>
             </div>
           </form>
         </Modal>

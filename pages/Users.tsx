@@ -78,7 +78,7 @@ const Users: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if(!window.confirm("Are you sure you want to delete this user?")) return;
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await api.delete(`/users/${id}/`);
       toast.success("User deleted");
@@ -103,51 +103,63 @@ const Users: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const filteredUsers = users.filter(u => 
-    u.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredUsers = users.filter(u =>
+    u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <Layout>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-white">User Management</h1>
-        <button onClick={() => openModal()} className="flex items-center gap-2 bg-primary text-[#112120] px-4 py-2 rounded-lg font-bold hover:bg-opacity-90 transition">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>User Management</h1>
+        <button
+          onClick={() => openModal()}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition"
+          style={{
+            background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+            color: 'var(--bg-primary)'
+          }}
+        >
           <span className="text-xl"><MdAdd /></span> Add User
         </button>
       </div>
 
       <div className="mb-6 relative max-w-md">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-lg"><MdSearch /></span>
-        <input 
-          type="text" 
-          placeholder="Search users by name or email..." 
-          className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary placeholder-white/30"
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg" style={{ color: 'var(--text-secondary)' }}><MdSearch /></span>
+        <input
+          type="text"
+          placeholder="Search users by name or email..."
+          className="w-full rounded-lg pl-10 pr-4 py-2.5 transition"
+          style={{
+            backgroundColor: 'var(--input-bg)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-primary)'
+          }}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
       {isLoading ? (
-          <div className="text-white/50 text-center py-10">Loading users...</div>
+        <div className="text-center py-10" style={{ color: 'var(--text-secondary)' }}>Loading users...</div>
       ) : (
-          <Table<User>
-            data={filteredUsers}
-            columns={[
-              { header: 'ID', accessor: 'id', className: 'text-primary w-16' },
-              { header: 'Username', accessor: 'username', className: 'font-medium' },
-              { header: 'Email', accessor: 'email' },
-              { header: 'Role', accessor: (u) => <span className={`px-2 py-1 rounded text-xs font-semibold ${u.role === 'admin' ? 'bg-primary/20 text-primary' : 'bg-white/10 text-white'}`}>{u.role.toUpperCase()}</span> },
-              { header: 'University', accessor: (u) => u.university || <span className="text-white/30">-</span> },
-              { header: 'Ads Left', accessor: 'free_ads_remaining' },
-            ]}
-            actions={(user) => (
-              <div className="flex justify-center gap-2">
-                <button onClick={() => openModal(user)} className="p-2 hover:bg-white/10 rounded-lg text-blue-400 transition" title="Edit"><MdEdit size={18} /></button>
-                <button onClick={() => handleDelete(user.id)} className="p-2 hover:bg-white/10 rounded-lg text-red-400 transition" title="Delete"><MdDelete size={18} /></button>
-              </div>
-            )}
-          />
+        <Table<User>
+          data={filteredUsers}
+          columns={[
+            { header: 'ID', accessor: 'id', className: 'text-primary w-16' },
+            { header: 'Username', accessor: 'username', className: 'font-medium' },
+            { header: 'Email', accessor: 'email' },
+            { header: 'Role', accessor: (u) => <span className={`px-2 py-1 rounded text-xs font-semibold ${u.role === 'admin' ? 'bg-primary/20 text-primary' : 'bg-white/10 text-white'}`}>{u.role.toUpperCase()}</span> },
+            { header: 'University', accessor: (u) => u.university || <span className="text-white/30">-</span> },
+            { header: 'Ads Left', accessor: 'free_ads_remaining' },
+          ]}
+          actions={(user) => (
+            <div className="flex justify-center gap-2">
+              <button onClick={() => openModal(user)} className="p-2 hover:bg-white/10 rounded-lg text-blue-400 transition" title="Edit"><MdEdit size={18} /></button>
+              <button onClick={() => handleDelete(user.id)} className="p-2 hover:bg-white/10 rounded-lg text-red-400 transition" title="Delete"><MdDelete size={18} /></button>
+            </div>
+          )}
+        />
       )}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingUser ? 'Edit User' : 'Create New User'}>

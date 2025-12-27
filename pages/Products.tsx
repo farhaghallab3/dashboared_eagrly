@@ -302,8 +302,15 @@ const Products: React.FC = () => {
   return (
     <Layout>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-white">Products Management</h1>
-        <button onClick={() => openModal()} className="flex items-center gap-2 bg-primary text-[#112120] px-4 py-2 rounded font-bold hover:bg-opacity-90">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Products Management</h1>
+        <button
+          onClick={() => openModal()}
+          className="flex items-center gap-2 px-4 py-2 rounded font-bold"
+          style={{
+            background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+            color: 'var(--bg-primary)'
+          }}
+        >
           <MdAdd /> Add Product
         </button>
       </div>
@@ -317,13 +324,13 @@ const Products: React.FC = () => {
                 <span className="text-xl">⏳</span>
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Pending Ads Awaiting Approval</h2>
-                <p className="text-white/60 text-sm">{pendingCount} ads need your review</p>
+                <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Pending Ads Awaiting Approval</h2>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{pendingCount} ads need your review</p>
               </div>
             </div>
             {selectedProducts.size > 0 && (
               <div className="flex items-center gap-2">
-                <span className="text-white/60 text-sm">{selectedProducts.size} selected</span>
+                <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{selectedProducts.size} selected</span>
                 <button
                   onClick={handleBulkApprove}
                   disabled={bulkActionLoading}
@@ -354,38 +361,55 @@ const Products: React.FC = () => {
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => { setStatusFilter(''); doRefetch(); }}
-          className={`px-4 py-2 rounded font-medium transition ${statusFilter === '' ? 'bg-primary text-[#112120]' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}
+          className="px-4 py-2 rounded font-medium transition"
+          style={{
+            background: statusFilter === '' ? 'var(--accent-primary)' : 'var(--hover-bg)',
+            color: statusFilter === '' ? 'var(--bg-primary)' : 'var(--text-secondary)'
+          }}
         >
           All Ads
         </button>
         <button
           onClick={() => { setStatusFilter('pending'); doRefetch(); }}
-          className={`px-4 py-2 rounded font-medium transition ${statusFilter === 'pending' ? 'bg-yellow-500 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}
+          className="px-4 py-2 rounded font-medium transition"
+          style={{
+            background: statusFilter === 'pending' ? '#eab308' : 'var(--hover-bg)',
+            color: statusFilter === 'pending' ? '#000' : 'var(--text-secondary)'
+          }}
         >
           Pending ({pendingCount})
         </button>
         <button
           onClick={() => { setStatusFilter('active'); doRefetch(); }}
-          className={`px-4 py-2 rounded font-medium transition ${statusFilter === 'active' ? 'bg-green-500 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}
+          className="px-4 py-2 rounded font-medium transition"
+          style={{
+            background: statusFilter === 'active' ? '#22c55e' : 'var(--hover-bg)',
+            color: statusFilter === 'active' ? '#fff' : 'var(--text-secondary)'
+          }}
         >
           Active
         </button>
         <button
           onClick={() => { setStatusFilter('inactive'); doRefetch(); }}
-          className={`px-4 py-2 rounded font-medium transition ${statusFilter === 'inactive' ? 'bg-gray-500 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}
+          className="px-4 py-2 rounded font-medium transition"
+          style={{
+            background: statusFilter === 'inactive' ? '#6b7280' : 'var(--hover-bg)',
+            color: statusFilter === 'inactive' ? '#fff' : 'var(--text-secondary)'
+          }}
         >
           Inactive
         </button>
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap gap-4 mb-6 p-4 rounded-lg bg-white/5 border border-white/10">
-        <div className="flex items-center bg-black/20 rounded-md px-3 py-2 border border-white/10 flex-1">
-          <button onClick={doRefetch} className="text-white/50 mr-2"><MdSearch /></button>
+      <div className="flex flex-wrap gap-4 mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+        <div className="flex items-center rounded-md px-3 py-2 flex-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)' }}>
+          <button onClick={doRefetch} style={{ color: 'var(--text-secondary)' }} className="mr-2"><MdSearch /></button>
           <input
             type="text"
             placeholder="Search products..."
-            className="bg-transparent text-white outline-none w-full"
+            className="bg-transparent outline-none w-full"
+            style={{ color: 'var(--text-primary)' }}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             onKeyDown={e => {
@@ -414,7 +438,7 @@ const Products: React.FC = () => {
           } else {
             refetch({ category: val });
           }
-        }} className="bg-black/20 text-white/80 border border-white/10 rounded px-3 py-2">
+        }} className="rounded px-3 py-2" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
           <option value="">All Categories</option>
           {(categories || []).map(cat => (
             <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -447,7 +471,7 @@ const Products: React.FC = () => {
             }
           }
           if (Object.keys(params).length === 0) refetch(); else refetch(params);
-        }} className="bg-black/20 text-white/80 border border-white/10 rounded px-3 py-2">
+        }} className="rounded px-3 py-2" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
           <option value="">All Statuses</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
@@ -479,7 +503,7 @@ const Products: React.FC = () => {
           }
 
           if (Object.keys(params).length === 0) refetch(); else refetch(params);
-        }} className="bg-black/20 text-white/80 border border-white/10 rounded px-3 py-2">
+        }} className="rounded px-3 py-2" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
           <option value="">Any time</option>
           <option value="24h">Last 24 hours</option>
           <option value="7d">Last 7 days</option>
@@ -488,7 +512,7 @@ const Products: React.FC = () => {
           <option value="newest">Newest</option>
           <option value="oldest">Oldest</option>
         </select>
-        <select className="bg-black/20 text-white/80 border border-white/10 rounded px-3 py-2">
+        <select className="rounded px-3 py-2" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
           <option value="">Sort By</option>
           <option value="price_asc">Price: Low to High</option>
           <option value="price_desc">Price: High to Low</option>
@@ -497,7 +521,7 @@ const Products: React.FC = () => {
 
       {isLoading ? (
         <div className="flex justify-center py-10">
-          <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin border-white/30"></div>
+          <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--border-color)', borderTopColor: 'transparent' }}></div>
         </div>
       ) : (
         <Table<Product>
@@ -586,32 +610,32 @@ const Products: React.FC = () => {
         <form onSubmit={handleSubmit(handleProductSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-white/80">Title</label>
-              <input {...register('title')} className="w-full bg-black/20 border border-white/10 rounded p-2 text-white" />
+              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Title</label>
+              <input {...register('title')} className="w-full rounded p-2" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} />
             </div>
             <div>
-              <label className="text-sm text-white/80">Price</label>
-              <input {...register('price')} className="w-full bg-black/20 border border-white/10 rounded p-2 text-white" />
+              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Price</label>
+              <input {...register('price')} className="w-full rounded p-2" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-white/80">University</label>
-              <input {...register('university')} className="w-full bg-black/20 border border-white/10 rounded p-2 text-white" />
+              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>University</label>
+              <input {...register('university')} className="w-full rounded p-2" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} />
             </div>
             <div>
-              <label className="text-sm text-white/80">Faculty</label>
-              <input {...register('faculty')} className="w-full bg-black/20 border border-white/10 rounded p-2 text-white" />
+              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Faculty</label>
+              <input {...register('faculty')} className="w-full rounded p-2" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} />
             </div>
           </div>
           <div>
-            <label className="text-sm text-white/80">Description</label>
-            <textarea {...register('description')} className="w-full bg-black/20 border border-white/10 rounded p-2 text-white h-24"></textarea>
+            <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Description</label>
+            <textarea {...register('description')} className="w-full rounded p-2 h-24" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}></textarea>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-white/80">Category</label>
-              <select {...register('category', { valueAsNumber: true })} className="w-full bg-black/20 border border-white/10 rounded p-2 text-white">
+              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Category</label>
+              <select {...register('category', { valueAsNumber: true })} className="w-full rounded p-2" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
                 <option value={0}>Select category</option>
                 {(categories || []).map(cat => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -619,23 +643,24 @@ const Products: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="text-sm text-white/80">Status</label>
+              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Status</label>
               <select
                 {...register('status')}
                 disabled={!(user && (user.role === 'admin' || (user as any).is_staff || (user as any).is_superuser))}
-                className="w-full bg-black/20 border border-white/10 rounded p-2 text-white"
+                className="w-full rounded p-2"
+                style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
               >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
                 <option value="pending">Pending</option>
               </select>
-              {!(user && (user.role === 'admin' || (user as any).is_staff || (user as any).is_superuser)) && <p className="text-xs text-white/50 mt-1">Products created by regular users are set to <strong>inactive</strong> and must be activated by an admin.</p>}
+              {!(user && (user.role === 'admin' || (user as any).is_staff || (user as any).is_superuser)) && <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Products created by regular users are set to <strong>inactive</strong> and must be activated by an admin.</p>}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 items-center">
             <div>
-              <label className="text-sm text-white/80">Condition</label>
-              <select {...register('condition')} className="w-full bg-black/20 border border-white/10 rounded p-2 text-white">
+              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Condition</label>
+              <select {...register('condition')} className="w-full rounded p-2" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
                 <option value="">Select condition</option>
                 <option value="new">New</option>
                 <option value="used">Used</option>
@@ -643,16 +668,17 @@ const Products: React.FC = () => {
             </div>
             <div className="flex items-center gap-3">
               <input type="checkbox" {...register('is_featured')} id="is_featured" className="accent-primary" />
-              <label htmlFor="is_featured" className="text-white/80 text-sm">Featured</label>
+              <label htmlFor="is_featured" className="text-sm" style={{ color: 'var(--text-secondary)' }}>Featured</label>
             </div>
           </div>
           <div>
-            <label className="text-sm text-white/80 mb-1 flex items-center gap-2"><MdImage /> Upload Images</label>
+            <label className="text-sm mb-1 flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}><MdImage /> Upload Images</label>
             <input
               type="file"
               multiple
               onChange={(e) => setImageFiles(e.target.files)}
-              className="w-full text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-[#112120] hover:file:bg-primary/80"
+              className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-[#112120] hover:file:bg-primary/80"
+              style={{ color: 'var(--text-primary)' }}
             />
           </div>
           <button disabled={opState?.creating || (editingProduct && opState?.updatingId === editingProduct.id)} className="w-full bg-primary text-[#112120] font-bold py-3 rounded mt-2">{opState?.creating || (editingProduct && opState?.updatingId === editingProduct.id) ? 'Saving...' : 'Save Product'}</button>

@@ -39,23 +39,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     try {
       const decoded = decodeToken(token);
-      
+
       // Standard Django SimpleJWT includes user_id in the payload
       if (decoded && decoded.user_id) {
         try {
-            // Fetch real user details from the backend
-            const response = await api.get<User>(`/users/${decoded.user_id}/`);
-            console.log(response.data);
-            
-            setUser(response.data);
-            setIsAuthenticated(true);
+          // Fetch real user details from the backend
+          const response = await api.get<User>(`/users/${decoded.user_id}/`);
+
+          setUser(response.data);
+          setIsAuthenticated(true);
         } catch (fetchError) {
-            console.error("Failed to fetch user profile, but token is valid:", fetchError);
-            // Fallback: still authenticate the user, but with minimal info if possible, or force logout
-            // Ideally, we want to allow access if the token is valid, but dashboard might break without user data.
-            // For now, we assume if we can't get user data, we are 'technically' authenticated via token
-            // but effectively broken. Let's try to keep them logged in so they don't get stuck in a loop.
-            setIsAuthenticated(true);
+          console.error("Failed to fetch user profile, but token is valid:", fetchError);
+          // Fallback: still authenticate the user, but with minimal info if possible, or force logout
+          // Ideally, we want to allow access if the token is valid, but dashboard might break without user data.
+          // For now, we assume if we can't get user data, we are 'technically' authenticated via token
+          // but effectively broken. Let's try to keep them logged in so they don't get stuck in a loop.
+          setIsAuthenticated(true);
         }
       } else {
         // Token format invalid or missing user_id
@@ -88,8 +87,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!data || !data.access) {
       throw new Error('Failed to obtain access token');
     }
-    console.log(data);
-    
+
     // tokens already stored by authService.obtainToken
     // ensure axios will send Authorization header immediately
     api.defaults.headers.common['Authorization'] = `Bearer ${data.access}`;
@@ -106,7 +104,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const userId = decoded.user_id;
       const res = await api.get<User>(`/users/${userId}/`);
       const fetchedUser = res.data;
-      console.log(fetchedUser);
       if (!fetchedUser || data.role == 'user') {
         // Not an admin - revoke tokens and reject login
         localStorage.removeItem('access_token');

@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
         rel="stylesheet" />
     <script>
         tailwind.config = {
@@ -16,47 +16,25 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#27e7dd",
-                        "background-light": "#f6f8f8",
-                        "background-dark": "#112120",
-                        "surface": "rgba(255, 255, 255, 0.05)"
+                        "primary": "#64ffda",
+                        "accent-secondary": "#00c2ff",
+                        "background-light": "#f0f4f8",
+                        "background-dark": "#0a0f1a",
+                        "bg-secondary": "#0f1627",
+                        "text-secondary": "#8892b0",
+                        "surface": "rgba(15, 26, 36, 0.95)",
+                        "border-accent": "rgba(100, 255, 218, 0.2)"
                     },
                     fontFamily: {
-                        "sans": ["Space Grotesk", "sans-serif"],
-                        "display": ["Space Grotesk", "sans-serif"]
+                        "sans": ["Inter", "system-ui", "sans-serif"],
+                        "display": ["Inter", "system-ui", "sans-serif"]
                     },
                 },
             },
         }
     </script>
     <style>
-        body {
-            background-color: #112120;
-            background-image:
-                linear-gradient(rgba(39, 231, 221, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(39, 231, 221, 0.05) 1px, transparent 1px);
-            background-size: 2rem 2rem;
-            color: white;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #112120;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(39, 231, 221, 0.2);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(39, 231, 221, 0.4);
-        }
+        /* Styles are now in index.css with theme support */
     </style>
     <script type="importmap">
 {
