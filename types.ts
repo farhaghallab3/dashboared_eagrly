@@ -8,6 +8,7 @@ export interface User {
   faculty?: string;
   free_ads_remaining: number;
   active_package?: string;
+  active_package_name?: string;
   package_expiry?: string;
   created_at: string;
 }
@@ -27,7 +28,7 @@ export interface Seller {
 }
 
 export interface Product {
-  id:number;
+  id: number;
   title: string;
   description: string;
   price: string;
