@@ -87,21 +87,24 @@ const Payments: React.FC = () => {
       (p.package_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
       String(p.id).includes(searchTerm);
 
-    const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
+    const matchesStatus = statusFilter === 'all'
+      ? true
+      : statusFilter === 'pending'
+        ? (p.status === 'pending' || p.status === 'pending_confirmation')
+        : p.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
 
   // Count by status for tabs
-  const pendingCount = payments.filter(p => p.status === 'pending').length;
-  const pendingConfirmationCount = payments.filter(p => p.status === 'pending_confirmation').length;
+  // Count by status for tabs
+  const pendingCount = payments.filter(p => p.status === 'pending' || p.status === 'pending_confirmation').length;
   const completedCount = payments.filter(p => p.status === 'completed').length;
   const failedCount = payments.filter(p => p.status === 'failed').length;
 
   const filterTabs: { key: StatusFilter; label: string; count?: number }[] = [
     { key: 'all', label: 'All' },
     { key: 'pending', label: 'Pending', count: pendingCount },
-    { key: 'pending_confirmation', label: 'Awaiting Confirmation', count: pendingConfirmationCount },
     { key: 'completed', label: 'Completed', count: completedCount },
     { key: 'failed', label: 'Failed', count: failedCount },
   ];
@@ -177,7 +180,18 @@ const Payments: React.FC = () => {
             { header: 'User', accessor: 'user_name' },
             { header: 'Package', accessor: 'package_name' },
             { header: 'Amount', accessor: (p) => `${p.amount} EGP` },
-            { header: 'Method', accessor: 'payment_method' },
+            {
+              header: 'Method', accessor: (p) => {
+                const methods: Record<string, string> = {
+                  'bank': 'Bank Transfer',
+                  'wallet': 'Mobile Wallet',
+                  'credit': 'Credit Card',
+                  'paypal': 'PayPal',
+                  'cash': 'Cash'
+                };
+                return methods[p.payment_method] || p.payment_method;
+              }
+            },
             {
               header: 'Date', accessor: (p) => p.user_confirmed_at
                 ? new Date(p.user_confirmed_at).toLocaleDateString()
@@ -215,28 +229,59 @@ const Payments: React.FC = () => {
         <div className="space-y-4">
           {confirmingPayment && (
             <>
-              <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+              <style>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                  width: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                  background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                  background-color: var(--border-color);
+                  border-radius: 20px;
+                  border: 2px solid transparent;
+                  background-clip: content-box;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                  background-color: var(--text-secondary);
+                }
+                .btn-cancel {
+                  background-color: transparent;
+                  border: 1px solid var(--border-color);
+                  color: var(--text-secondary);
+                }
+                .btn-cancel:hover {
+                  background-color: var(--hover-bg);
+                  color: var(--text-primary);
+                  border-color: var(--text-secondary);
+                }
+              `}</style>
+              <div className="p-4 rounded-lg border" style={{
+                backgroundColor: 'var(--bg-secondary)',
+                borderColor: 'var(--border-color)',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)' // Subtle shadow
+              }}>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <span className="text-white/50">User:</span>
-                    <p className="text-white font-medium">{confirmingPayment.user_name}</p>
+                    <span style={{ color: 'var(--text-secondary)' }}>User:</span>
+                    <p style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{confirmingPayment.user_name}</p>
                   </div>
                   <div>
-                    <span className="text-white/50">Amount:</span>
-                    <p className="text-white font-medium">{confirmingPayment.amount} EGP</p>
+                    <span style={{ color: 'var(--text-secondary)' }}>Amount:</span>
+                    <p style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{confirmingPayment.amount} EGP</p>
                   </div>
                   <div>
-                    <span className="text-white/50">Method:</span>
-                    <p className="text-white font-medium capitalize">{confirmingPayment.payment_method}</p>
+                    <span style={{ color: 'var(--text-secondary)' }}>Method:</span>
+                    <p className="capitalize" style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{confirmingPayment.payment_method}</p>
                   </div>
                   <div>
-                    <span className="text-white/50">Requested Package:</span>
-                    <p className="text-white font-medium">{confirmingPayment.package_name}</p>
+                    <span style={{ color: 'var(--text-secondary)' }}>Requested Package:</span>
+                    <p style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{confirmingPayment.package_name}</p>
                   </div>
                   {confirmingPayment.user_confirmed_at && (
                     <div className="col-span-2">
-                      <span className="text-white/50">User Confirmed:</span>
-                      <p className="text-white font-medium">
+                      <span style={{ color: 'var(--text-secondary)' }}>User Confirmed:</span>
+                      <p style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
                         {new Date(confirmingPayment.user_confirmed_at).toLocaleString()}
                       </p>
                     </div>
@@ -245,28 +290,29 @@ const Payments: React.FC = () => {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-white/80">
+                <label className="mb-2 block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                   Assign Package
                 </label>
-                <p className="text-white/50 text-xs mb-2">
+                <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Select the package to assign to the user. You can choose a different package if needed.
                 </p>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
+                <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
                   {packages.map((pkg) => (
                     <div
                       key={pkg.id}
                       onClick={() => setSelectedPackageId(pkg.id)}
-                      className={`p-3 rounded-lg cursor-pointer transition border ${selectedPackageId === pkg.id
-                        ? 'border-primary bg-primary/10'
-                        : 'border-white/10 bg-black/20 hover:border-white/20'
-                        }`}
+                      className="p-3 rounded-lg cursor-pointer transition border"
+                      style={{
+                        borderColor: selectedPackageId === pkg.id ? 'var(--accent-primary)' : 'var(--border-color)',
+                        backgroundColor: selectedPackageId === pkg.id ? 'rgba(var(--accent-primary-rgb), 0.1)' : 'var(--bg-secondary)',
+                      }}
                     >
                       <div className="flex justify-between items-center">
                         <div>
-                          <h4 className="font-semibold text-white text-sm">{pkg.name}</h4>
-                          <p className="text-white/50 text-xs">{pkg.ad_limit} ads • {pkg.duration_in_days} days</p>
+                          <h4 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{pkg.name}</h4>
+                          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{pkg.ad_limit} ads • {pkg.duration_in_days} days</p>
                         </div>
-                        <p className="font-bold text-primary">{pkg.price} EGP</p>
+                        <p className="font-bold" style={{ color: 'var(--accent-primary)' }}>{pkg.price} EGP</p>
                       </div>
                     </div>
                   ))}
@@ -274,13 +320,19 @@ const Payments: React.FC = () => {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-white/80">
+                <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                   Admin Notes (optional)
                 </label>
                 <textarea
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2 text-white placeholder-white/30 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary text-sm"
+                  className="w-full rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 transition"
+                  style={{
+                    backgroundColor: 'var(--input-bg)',
+                    borderColor: 'var(--border-color)',
+                    color: 'var(--text-primary)',
+                    borderWidth: '1px'
+                  }}
                   placeholder="Add any notes about this confirmation..."
                   rows={2}
                 />
@@ -289,7 +341,7 @@ const Payments: React.FC = () => {
               <div className="pt-2 flex gap-3">
                 <button
                   onClick={() => { setIsConfirmModalOpen(false); setConfirmingPayment(null); }}
-                  className="flex-1 rounded-lg border border-white/10 py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/5"
+                  className="flex-1 rounded-lg py-2.5 text-sm font-medium transition btn-cancel"
                 >
                   Cancel
                 </button>
