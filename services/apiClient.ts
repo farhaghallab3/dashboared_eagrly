@@ -21,9 +21,16 @@ export async function getProducts(params?: Record<string, any>) {
   return data;
 }
 
-export async function getPayments(params?: Record<string, any>) {
-  const { data } = await api.get<Payment[]>(`/payments/`, { params });
-  return data;
+export async function getPayments(params?: Record<string, any>): Promise<Payment[]> {
+  const { data } = await api.get(`/payments/`, { params });
+  // Handle both paginated and non-paginated responses
+  if (Array.isArray(data)) {
+    return data;
+  }
+  if (data && Array.isArray(data.results)) {
+    return data.results;
+  }
+  return [];
 }
 
 export async function getProduct(id: number | string) {
@@ -46,6 +53,20 @@ export async function sendChatbotMessage(message: string) {
   return data;
 }
 
+export async function getPackages() {
+  const { data } = await api.get(`/packages/`);
+  // Handle both paginated and non-paginated responses
+  return Array.isArray(data) ? data : (data.results || []);
+}
+
+export async function confirmPayment(paymentId: number, packageId: number, adminNotes?: string) {
+  const { data } = await api.post(`/payments/${paymentId}/admin_confirm/`, {
+    package_id: packageId,
+    admin_notes: adminNotes || ''
+  });
+  return data;
+}
+
 export default {
   login,
   refreshToken,
@@ -54,4 +75,6 @@ export default {
   getProduct,
   createProduct,
   sendChatbotMessage,
+  getPackages,
+  confirmPayment,
 };

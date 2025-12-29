@@ -65,7 +65,12 @@ export interface Payment {
   amount: string;
   start_date: string;
   expiry_date: string;
-  status: 'pending' | 'completed' | 'failed';
+  status: 'pending' | 'pending_confirmation' | 'completed' | 'failed';
+  created_at?: string;
+  updated_at?: string;
+  user_confirmed_at?: string;
+  admin_confirmed_at?: string;
+  admin_notes?: string;
 }
 
 export interface AuthResponse {

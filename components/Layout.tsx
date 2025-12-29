@@ -17,6 +17,7 @@ import {
 } from 'react-icons/md';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { usePaymentBadge } from '../hooks/usePaymentBadge';
 
 const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link
@@ -31,10 +32,44 @@ const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any,
   </Link>
 );
 
+const SidebarItemWithBadge = ({ to, icon: Icon, label, active, badgeCount, onClick }: {
+  to: string,
+  icon: any,
+  label: string,
+  active: boolean,
+  badgeCount?: number,
+  onClick?: () => void
+}) => (
+  <Link
+    to={to}
+    onClick={onClick}
+    className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-300 relative ${active
+      ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 shadow-lg shadow-[var(--accent-primary)]/10'
+      : 'text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-[var(--accent-primary)] border border-transparent'
+      }`}
+  >
+    <span className="text-xl relative">
+      <Icon />
+      {badgeCount !== undefined && badgeCount > 0 && (
+        <span className="absolute -top-2 -right-2 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] font-bold bg-red-500 text-white rounded-full px-1 animate-pulse">
+          {badgeCount > 99 ? '99+' : badgeCount}
+        </span>
+      )}
+    </span>
+    <p className="text-sm font-medium leading-normal">{label}</p>
+    {badgeCount !== undefined && badgeCount > 0 && (
+      <span className="ml-auto flex items-center justify-center min-w-[22px] h-[22px] text-xs font-bold bg-red-500 text-white rounded-full">
+        {badgeCount > 99 ? '99+' : badgeCount}
+      </span>
+    )}
+  </Link>
+);
+
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const { unreadCount, markAsRead } = usePaymentBadge();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -103,7 +138,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <SidebarItem to="/categories" icon={MdCategory} label="Categories" active={isActive('/categories')} />
               <SidebarItem to="/products" icon={MdInventory2} label="Products" active={isActive('/products')} />
               <SidebarItem to="/packages" icon={MdCardGiftcard} label="Packages" active={isActive('/packages')} />
-              <SidebarItem to="/payments" icon={MdPayments} label="Payments" active={isActive('/payments')} />
+              <SidebarItemWithBadge
+                to="/payments"
+                icon={MdPayments}
+                label="Payments"
+                active={isActive('/payments')}
+                badgeCount={unreadCount}
+                onClick={markAsRead}
+              />
 
               <div className="my-4 border-t" style={{ borderColor: 'var(--border-color)' }}></div>
               <p className="text-xs font-semibold uppercase tracking-wider px-4 mb-2" style={{ color: 'var(--text-secondary)' }}>Analytics & Settings</p>
@@ -147,3 +189,4 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 export default Layout;
+
