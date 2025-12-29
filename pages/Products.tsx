@@ -546,7 +546,7 @@ const Products: React.FC = () => {
               ),
             },
             { header: 'Image', accessor: (p) => <img src={p.image} alt="product" className="h-10 w-10 rounded object-cover border border-white/10" /> },
-            { header: 'Title', accessor: (p) => <button onClick={() => navigate(`/products/${p.id}`)} className="text-primary underline">{p.title}</button>, className: 'font-bold' },
+            { header: 'Title', accessor: (p) => <button onClick={() => navigate(`/products/${p.id}`)} className="underline font-medium" style={{ color: 'var(--text-primary)' }}>{p.title}</button>, className: 'font-bold' },
             { header: 'Seller', accessor: (p) => p.seller ? p.seller.first_name : '-', className: 'text-sm' },
             { header: 'Category', accessor: (p) => p.category_name ?? '-' },
             { header: 'Price', accessor: (p) => `${p.price} EGP` },
