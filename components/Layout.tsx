@@ -6,7 +6,6 @@ import {
   MdInventory2,
   MdShoppingCart,
   MdBarChart,
-  MdSettings,
   MdLogout,
   MdCategory,
   MdCardGiftcard,
@@ -141,9 +140,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               />
 
               <div className="my-4 border-t" style={{ borderColor: 'var(--border-color)' }}></div>
-              <p className="text-xs font-semibold uppercase tracking-wider px-4 mb-2" style={{ color: 'var(--text-secondary)' }}>Analytics & Settings</p>
+              <p className="text-xs font-semibold uppercase tracking-wider px-4 mb-2" style={{ color: 'var(--text-secondary)' }}>Analytics & Reports</p>
               <SidebarItem to="/analytics" icon={MdBarChart} label="Analytics" active={isActive('/analytics')} />
-              <SidebarItem to="/settings" icon={MdSettings} label="Settings" active={isActive('/settings')} />
               <SidebarItem to="/reports" icon={MdReport} label="Reports" active={isActive('/reports')} />
             </nav>
 

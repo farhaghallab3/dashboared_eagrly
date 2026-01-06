@@ -121,10 +121,25 @@ const Reports: React.FC = () => {
           data={paginated}
           columns={[
             { header: 'ID', accessor: (r) => <Link to={`/reports/${r.id}`} style={{ color: 'var(--accent-primary)' }}>#{r.id}</Link> },
-            { header: 'Product', accessor: (r) => (r as any).product_name ?? r.product },
-            { header: 'Reporter', accessor: (r) => r.reporter_name ?? `User ${r.reporter}` },
-            { header: 'Reason', accessor: 'reason' },
-            { header: 'Status', accessor: (r) => r.status },
+            {
+              header: 'Reporter',
+              accessor: (r) => (
+                <Link to={`/users?id=${r.reporter}`} style={{ color: 'var(--accent-primary)' }}>
+                  {r.reporter_name ?? `User #${r.reporter}`}
+                </Link>
+              )
+            },
+            {
+              header: 'Reported User',
+              accessor: (r) => r.reported_user ? (
+                <Link to={`/users?id=${r.reported_user}`} style={{ color: 'var(--error, #ef4444)' }}>
+                  {(r as any).reported_user_name ?? `User #${r.reported_user}`}
+                </Link>
+              ) : '-'
+            },
+            { header: 'Product', accessor: (r) => r.product ? <Link to={`/products/${r.product}`} style={{ color: 'var(--accent-primary)' }}>{(r as any).product_name ?? `#${r.product}`}</Link> : '-' },
+            { header: 'Reason', accessor: (r) => <span title={r.reason} style={{ maxWidth: '200px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.reason}</span> },
+            { header: 'Status', accessor: (r) => <span className={`px-2 py-1 rounded text-xs font-bold ${r.status === 'resolved' ? 'bg-green-500/20 text-green-400' : r.status === 'rejected' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>{r.status ?? 'open'}</span> },
             { header: 'Created', accessor: (r) => new Date(r.created_at || '').toLocaleString() },
           ]}
           actions={(r) => (

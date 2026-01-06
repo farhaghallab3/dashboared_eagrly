@@ -21,16 +21,9 @@ export async function getProducts(params?: Record<string, any>) {
   return data;
 }
 
-export async function getPayments(params?: Record<string, any>): Promise<Payment[]> {
+export async function getPayments(params?: Record<string, any>): Promise<Payment[] | { results: Payment[]; count: number }> {
   const { data } = await api.get(`/payments/`, { params });
-  // Handle both paginated and non-paginated responses
-  if (Array.isArray(data)) {
-    return data;
-  }
-  if (data && Array.isArray(data.results)) {
-    return data.results;
-  }
-  return [];
+  return data;
 }
 
 export async function getProduct(id: number | string) {

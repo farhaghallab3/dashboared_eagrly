@@ -6,6 +6,7 @@ import { MdAdd, MdEdit, MdDelete, MdImage } from 'react-icons/md';
 import Layout from '../components/Layout';
 import Table from '../components/ui/Table';
 import Modal from '../components/ui/Modal';
+import Pagination from '../components/ui/Pagination';
 import useAdminCategories from '../hooks/useAdminCategories';
 import { Category } from '../types';
 import toast from 'react-hot-toast';
@@ -18,7 +19,7 @@ const categorySchema = z.object({
 type CategoryForm = z.infer<typeof categorySchema>;
 
 const Categories: React.FC = () => {
-  const { data: categories, loading, error, opState, createItem, updateItem, deleteItem, refetch } = useAdminCategories();
+  const { data: categories, loading, error, opState, createItem, updateItem, deleteItem, refetch, currentPage, setCurrentPage, totalCount, pageSize } = useAdminCategories();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -101,6 +102,17 @@ const Categories: React.FC = () => {
           </div>
         )}
       />
+
+      {/* Pagination */}
+      {!loading && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(totalCount / pageSize)}
+          totalCount={totalCount}
+          pageSize={pageSize}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingCategory ? 'Edit Category' : 'New Category'}>
         <form onSubmit={handleSubmit(handleSubmitData)} className="space-y-4">

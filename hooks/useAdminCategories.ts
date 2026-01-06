@@ -7,15 +7,27 @@ export function useAdminCategories(initialParams?: Record<string, any>) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<any>(null);
   const [opState, setOpState] = useState<{ creating?: boolean; updatingId?: number | string | null; deletingId?: number | string | null }>({});
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [pageSize] = useState(10);
 
   const fetchAll = useCallback(async (params?: Record<string, any>) => {
     setLoading(true);
     setError(null);
     try {
       const res = await categoriesApi.fetchCategories(params);
-      const items = Array.isArray(res) ? res : (res && res.results ? res.results : []);
-      setData(items);
-      return items;
+      if (Array.isArray(res)) {
+        setData(res);
+        setTotalCount(res.length);
+      } else if (res && res.results) {
+        setData(res.results);
+        setTotalCount(res.count || res.results.length);
+      } else {
+        setData([]);
+        setTotalCount(0);
+      }
+      return Array.isArray(res) ? res : (res?.results || []);
     } catch (err) {
       setError(err);
       throw err;
@@ -25,8 +37,8 @@ export function useAdminCategories(initialParams?: Record<string, any>) {
   }, []);
 
   useEffect(() => {
-    fetchAll(initialParams).catch(() => {});
-  }, [fetchAll, initialParams]);
+    fetchAll({ ...initialParams, page: currentPage }).catch(() => { });
+  }, [fetchAll, initialParams, currentPage]);
 
   const createItem = async (payload: Record<string, any> | FormData) => {
     setLoading(true);
@@ -81,7 +93,7 @@ export function useAdminCategories(initialParams?: Record<string, any>) {
 
   const refetch = () => fetchAll(initialParams);
 
-  return { data, loading, error, opState, createItem, updateItem, deleteItem, refetch } as const;
+  return { data, loading, error, opState, createItem, updateItem, deleteItem, refetch, currentPage, setCurrentPage, totalCount, pageSize } as const;
 }
 
 export default useAdminCategories;

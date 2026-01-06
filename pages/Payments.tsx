@@ -3,6 +3,7 @@ import { MdCheckCircle, MdCancel, MdSearch, MdOutlinePending, MdHourglassTop, Md
 import Layout from '../components/Layout';
 import Table from '../components/ui/Table';
 import Modal from '../components/ui/Modal';
+import Pagination from '../components/ui/Pagination';
 import { Payment, Package } from '../types';
 import toast from 'react-hot-toast';
 import usePayments from '../hooks/usePayments';
@@ -11,7 +12,7 @@ import { getPackages, confirmPayment } from '../services/apiClient';
 type StatusFilter = 'all' | 'pending_confirmation' | 'completed' | 'failed' | 'pending';
 
 const Payments: React.FC = () => {
-  const { data: paymentsData, loading, error, refetch } = usePayments();
+  const { data: paymentsData, loading, error, refetch, currentPage, setCurrentPage, totalCount, pageSize } = usePayments();
   // Normalize status to lowercase for all payments
   const payments = (Array.isArray(paymentsData) ? paymentsData : []).map(p => ({
     ...p,
@@ -217,6 +218,17 @@ const Payments: React.FC = () => {
               )}
             </div>
           )}
+        />
+      )}
+
+      {/* Pagination */}
+      {!loading && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(totalCount / pageSize)}
+          totalCount={totalCount}
+          pageSize={pageSize}
+          onPageChange={(page) => setCurrentPage(page)}
         />
       )}
 

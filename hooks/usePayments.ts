@@ -6,14 +6,27 @@ export function usePayments(initialParams?: Record<string, any>) {
   const [data, setData] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [pageSize] = useState(10);
 
   const fetchData = useCallback(async (params?: Record<string, any>) => {
     setLoading(true);
     setError(null);
     try {
       const res = await getPayments(params);
-      setData(res);
-      return res;
+      if (Array.isArray(res)) {
+        setData(res);
+        setTotalCount(res.length);
+      } else if (res && res.results) {
+        setData(res.results);
+        setTotalCount(res.count || res.results.length);
+      } else {
+        setData([]);
+        setTotalCount(0);
+      }
+      return Array.isArray(res) ? res : (res?.results || []);
     } catch (e) {
       setError(e);
       throw e;
@@ -23,11 +36,12 @@ export function usePayments(initialParams?: Record<string, any>) {
   }, []);
 
   useEffect(() => {
-    fetchData(initialParams);
-  }, [fetchData, initialParams]);
+    fetchData({ ...initialParams, page: currentPage });
+  }, [fetchData, initialParams, currentPage]);
 
-  return { data, loading, error, refetch: () => fetchData(initialParams) } as const;
+  const refetch = (params?: Record<string, any>) => fetchData({ ...initialParams, ...params, page: currentPage });
+
+  return { data, loading, error, refetch, currentPage, setCurrentPage, totalCount, pageSize } as const;
 }
 
 export default usePayments;
-

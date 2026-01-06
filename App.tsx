@@ -99,7 +99,6 @@ const AppRoutes = () => {
             } />
 
             <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><div className="flex items-center justify-center h-full text-white text-2xl font-bold opacity-50">Settings Module Coming Soon</div></ProtectedRoute>} />
 
             <Route path="*" element={<div className="flex h-screen items-center justify-center bg-[#112120] text-white flex-col gap-4"><h1 className="text-6xl font-bold text-primary">404</h1><p>Page Not Found</p></div>} />
         </Routes>

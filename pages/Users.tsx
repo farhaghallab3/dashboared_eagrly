@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,6 +6,7 @@ import { MdAdd, MdEdit, MdDelete, MdSearch, MdUpgrade } from 'react-icons/md';
 import Layout from '../components/Layout';
 import Table from '../components/ui/Table';
 import Modal from '../components/ui/Modal';
+import Pagination from '../components/ui/Pagination';
 import api from '../services/api';
 import { User, Package } from '../types';
 import toast from 'react-hot-toast';
@@ -31,26 +31,30 @@ const Users: React.FC = () => {
   const [upgradingUser, setUpgradingUser] = useState<User | null>(null);
   const [selectedPackageId, setSelectedPackageId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [pageSize] = useState(10);
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<UserForm>({
     resolver: zodResolver(userSchema),
   });
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page: number = 1) => {
     setIsLoading(true);
     try {
-      const res = await api.get('/users/');
-      // Some backends return a paginated object { results: [...] }
-      // Normalize to an array so callers can use array methods like .filter
+      const res = await api.get('/users/', { params: { page } });
       const payload = res.data;
       if (payload && Array.isArray(payload)) {
         setUsers(payload as User[]);
+        setTotalCount(payload.length);
       } else if (payload && Array.isArray(payload.results)) {
         setUsers(payload.results as User[]);
+        setTotalCount(payload.count || payload.results.length);
       } else {
-        // Unexpected shape - attempt to coerce or set empty
         console.warn('Unexpected users response shape:', payload);
         setUsers([]);
+        setTotalCount(0);
       }
     } catch (error) {
       console.error(error);
@@ -77,9 +81,9 @@ const Users: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(currentPage);
     fetchPackages();
-  }, []);
+  }, [currentPage]);
 
   const handleCreateOrUpdate = async (data: UserForm) => {
     try {
@@ -91,7 +95,7 @@ const Users: React.FC = () => {
         toast.success("User created successfully");
       }
       setIsModalOpen(false);
-      fetchUsers();
+      fetchUsers(currentPage);
     } catch (err: any) {
       console.error(err);
       toast.error(err.response?.data?.detail || "Operation failed");
@@ -103,7 +107,7 @@ const Users: React.FC = () => {
     try {
       await api.delete(`/users/${id}/`);
       toast.success("User deleted");
-      fetchUsers();
+      fetchUsers(currentPage);
     } catch (error) {
       toast.error("Failed to delete user");
     }
@@ -123,7 +127,7 @@ const Users: React.FC = () => {
       setIsUpgradeModalOpen(false);
       setUpgradingUser(null);
       setSelectedPackageId(null);
-      fetchUsers();
+      fetchUsers(currentPage);
     } catch (err: any) {
       console.error(err);
       toast.error(err.response?.data?.error || "Failed to upgrade user");
@@ -218,6 +222,17 @@ const Users: React.FC = () => {
         />
       )}
 
+      {/* Pagination */}
+      {!isLoading && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(totalCount / pageSize)}
+          totalCount={totalCount}
+          pageSize={pageSize}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
+
       {/* Edit/Create User Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingUser ? 'Edit User' : 'Create New User'}>
         <form onSubmit={handleSubmit(handleCreateOrUpdate)} className="space-y-4">
@@ -308,8 +323,8 @@ const Users: React.FC = () => {
                   key={pkg.id}
                   onClick={() => setSelectedPackageId(pkg.id)}
                   className={`p-4 rounded-lg cursor-pointer transition border ${selectedPackageId === pkg.id
-                      ? 'border-primary bg-primary/10'
-                      : 'border-white/10 bg-black/20 hover:border-white/20'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-white/10 bg-black/20 hover:border-white/20'
                     }`}
                 >
                   <div className="flex justify-between items-center">

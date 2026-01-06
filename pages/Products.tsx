@@ -6,6 +6,7 @@ import { MdAdd, MdEdit, MdDelete, MdSearch, MdFilterList, MdImage, MdCheck, MdCl
 import Layout from '../components/Layout';
 import Table from '../components/ui/Table';
 import Modal from '../components/ui/Modal';
+import Pagination from '../components/ui/Pagination';
 import useAdminProducts from '../hooks/useAdminProducts';
 import useAdminCategories from '../hooks/useAdminCategories';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +30,7 @@ const productSchema = z.object({
 type ProductForm = z.infer<typeof productSchema>;
 
 const Products: React.FC = () => {
-  const { data: products, loading: isLoading, error, opState, createItem, updateItem, deleteItem, refetch } = useAdminProducts();
+  const { data: products, loading: isLoading, error, opState, createItem, updateItem, deleteItem, refetch, currentPage, setCurrentPage, totalCount, pageSize } = useAdminProducts();
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -603,6 +604,17 @@ const Products: React.FC = () => {
               }} className="text-red-400" disabled={opState?.deletingId === product.id}>{opState?.deletingId === product.id ? 'Deleting...' : <MdDelete />}</button>
             </div>
           )}
+        />
+      )}
+
+      {/* Pagination */}
+      {!isLoading && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(totalCount / pageSize)}
+          totalCount={totalCount}
+          pageSize={pageSize}
+          onPageChange={(page) => setCurrentPage(page)}
         />
       )}
 

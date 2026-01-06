@@ -98,12 +98,15 @@ export interface Review {
 
 export interface Report {
   id: number;
-  product: number;
+  product?: number;
+  product_name?: string;
   reporter: number;
   reporter_name?: string;
+  reported_user?: number;
+  reported_user_name?: string;
   reason: string;
   details?: string;
-  status: 'open' | 'under_review' | 'resolved' | 'rejected';
+  status?: 'open' | 'under_review' | 'resolved' | 'rejected';
   created_at: string;
   updated_at?: string;
 }
