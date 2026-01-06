@@ -87,13 +87,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             {/* Logo */}
             <div className="flex items-center gap-4 p-3 rounded-xl"
               style={{
-                backgroundColor: 'var(--accent-primary)',
-                opacity: 0.1,
-                border: '1px solid var(--border-color)'
-              }}>
-            </div>
-            <div className="flex items-center gap-4 p-3 rounded-xl -mt-[72px]"
-              style={{
                 backgroundColor: theme === 'dark' ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0, 180, 216, 0.1)',
                 border: '1px solid var(--border-color)'
               }}>
