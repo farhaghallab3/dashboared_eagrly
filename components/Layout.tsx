@@ -100,7 +100,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </div>
               <div className="flex flex-col">
                 <h1 className="text-lg font-bold leading-normal" style={{ color: 'var(--text-primary)' }}>Admin</h1>
-                <p className="text-sm font-medium leading-normal" style={{ color: 'var(--accent-primary)' }}>Eagerly Dashboard</p>
+                <p className="text-sm font-medium leading-normal" style={{ color: 'var(--accent-primary)' }}>Stuplies Dashboard</p>
               </div>
             </div>
 

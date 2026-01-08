@@ -25,7 +25,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, isLoading } = useAuth();
 
     if (isLoading) {
-        return <div className="flex h-screen w-full items-center justify-center bg-[#112120] text-primary font-bold tracking-widest animate-pulse">LOADING EAGERLY...</div>;
+        return <div className="flex h-screen w-full items-center justify-center bg-[#112120] text-primary font-bold tracking-widest animate-pulse">LOADING Stuplies...</div>;
     }
 
     if (!isAuthenticated) {

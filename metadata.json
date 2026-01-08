@@ -1,5 +1,5 @@
 {
-  "name": "Eagerly Admin",
-  "description": "A pixel-perfect, feature-rich Admin Dashboard for Eagerly utilizing React, TailwindCSS, and TypeScript with full CRUD capabilities.",
+  "name": "Stuplies Admin",
+  "description": "A pixel-perfect, feature-rich Admin Dashboard for Stuplies utilizing React, TailwindCSS, and TypeScript with full CRUD capabilities.",
   "requestFramePermissions": []
 }
