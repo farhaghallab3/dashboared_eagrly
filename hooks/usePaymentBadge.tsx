@@ -27,8 +27,16 @@ export function PaymentBadgeProvider({ children }: { children: ReactNode }) {
             const lastRead = localStorage.getItem(LAST_READ_KEY);
             const lastReadTime = lastRead ? new Date(lastRead).getTime() : 0;
 
+            let paymentList: any[] = [];
+            if (Array.isArray(payments)) {
+                paymentList = payments;
+            } else if (payments && Array.isArray((payments as any).results)) {
+                // Handle paginated response
+                paymentList = (payments as any).results;
+            }
+
             // Count payments that are pending_confirmation and were created after last read
-            const unreadPayments = payments.filter((p: any) => {
+            const unreadPayments = paymentList.filter((p: any) => {
                 if (p.status !== 'pending_confirmation') return false;
                 const createdTime = p.user_confirmed_at
                     ? new Date(p.user_confirmed_at).getTime()

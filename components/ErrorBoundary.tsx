@@ -6,10 +6,16 @@ interface State {
   error?: Error | null;
 }
 
-class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, State> {
-  constructor(props: any) {
+interface Props {
+  children: React.ReactNode;
+}
+
+class ErrorBoundary extends React.Component<Props, State> {
+  public state: State = { hasError: false, error: null };
+  declare props: Readonly<Props>;
+
+  constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error: Error) {
@@ -55,7 +61,7 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, State> 
         </div>
       );
     }
-    return this.props.children as any;
+    return this.props.children;
   }
 }
 
