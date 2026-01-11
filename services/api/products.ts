@@ -55,6 +55,11 @@ export async function fetchMyProducts() {
   return res.data;
 }
 
+export async function fetchPendingCount() {
+  const res = await api.get('/products/pending_count/');
+  return res.data.count;
+}
+
 export default {
   fetchProducts,
   createProduct,
@@ -62,4 +67,5 @@ export default {
   updateProduct,
   deleteProduct,
   fetchMyProducts,
+  fetchPendingCount,
 };

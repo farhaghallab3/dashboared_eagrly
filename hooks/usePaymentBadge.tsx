@@ -23,28 +23,9 @@ export function PaymentBadgeProvider({ children }: { children: ReactNode }) {
         }
 
         try {
-            const payments = await getPayments();
-            const lastRead = localStorage.getItem(LAST_READ_KEY);
-            const lastReadTime = lastRead ? new Date(lastRead).getTime() : 0;
-
-            let paymentList: any[] = [];
-            if (Array.isArray(payments)) {
-                paymentList = payments;
-            } else if (payments && Array.isArray((payments as any).results)) {
-                // Handle paginated response
-                paymentList = (payments as any).results;
-            }
-
-            // Count payments that are pending_confirmation and were created after last read
-            const unreadPayments = paymentList.filter((p: any) => {
-                if (p.status !== 'pending_confirmation') return false;
-                const createdTime = p.user_confirmed_at
-                    ? new Date(p.user_confirmed_at).getTime()
-                    : (p.created_at ? new Date(p.created_at).getTime() : 0);
-                return createdTime > lastReadTime;
-            });
-
-            setUnreadCount(unreadPayments.length);
+            const { getPendingPaymentCount } = await import('../services/apiClient');
+            const count = await getPendingPaymentCount();
+            setUnreadCount(count);
         } catch (error) {
             // Silently ignore errors (likely auth issues)
             setUnreadCount(0);

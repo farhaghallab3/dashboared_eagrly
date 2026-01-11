@@ -60,6 +60,11 @@ export async function confirmPayment(paymentId: number, packageId: number, admin
   return data;
 }
 
+export async function getPendingPaymentCount() {
+  const { data } = await api.get<{ count: number }>(`/payments/pending_count/`);
+  return data.count;
+}
+
 export default {
   login,
   refreshToken,
@@ -70,4 +75,5 @@ export default {
   sendChatbotMessage,
   getPackages,
   confirmPayment,
+  getPendingPaymentCount,
 };

@@ -4,6 +4,7 @@ import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { PaymentBadgeProvider } from './hooks/usePaymentBadge';
+import { ProductBadgeProvider } from './hooks/useProductBadge';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 
@@ -131,34 +132,36 @@ function App() {
         <ErrorBoundary>
             <ThemeProvider>
                 <AuthProvider>
-                    <PaymentBadgeProvider>
-                        <Router>
-                            <Toaster position="top-right" toastOptions={{
-                                duration: 3000,
-                                style: {
-                                    background: 'var(--bg-secondary)',
-                                    color: 'var(--text-primary)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '12px',
-                                },
-                                success: {
+                    <ProductBadgeProvider>
+                        <PaymentBadgeProvider>
+                            <Router>
+                                <Toaster position="top-right" toastOptions={{
                                     duration: 3000,
-                                    iconTheme: {
-                                        primary: 'var(--accent-primary)',
-                                        secondary: 'var(--bg-primary)',
+                                    style: {
+                                        background: 'var(--bg-secondary)',
+                                        color: 'var(--text-primary)',
+                                        border: '1px solid var(--border-color)',
+                                        borderRadius: '12px',
                                     },
-                                },
-                                error: {
-                                    duration: 4000,
-                                    iconTheme: {
-                                        primary: '#ef4444',
-                                        secondary: 'var(--bg-primary)',
+                                    success: {
+                                        duration: 3000,
+                                        iconTheme: {
+                                            primary: 'var(--accent-primary)',
+                                            secondary: 'var(--bg-primary)',
+                                        },
                                     },
-                                },
-                            }} />
-                            <AppRoutes />
-                        </Router>
-                    </PaymentBadgeProvider>
+                                    error: {
+                                        duration: 4000,
+                                        iconTheme: {
+                                            primary: '#ef4444',
+                                            secondary: 'var(--bg-primary)',
+                                        },
+                                    },
+                                }} />
+                                <AppRoutes />
+                            </Router>
+                        </PaymentBadgeProvider>
+                    </ProductBadgeProvider>
                 </AuthProvider>
             </ThemeProvider>
         </ErrorBoundary>

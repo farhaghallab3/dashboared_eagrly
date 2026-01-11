@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { usePaymentBadge } from '../hooks/usePaymentBadge';
+import { useProductBadge } from '../hooks/useProductBadge';
 
 const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
   <Link
@@ -68,7 +69,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
-  const { unreadCount, markAsRead } = usePaymentBadge();
+  const { unreadCount: paymentCount, markAsRead } = usePaymentBadge();
+  const { pendingCount: productCount } = useProductBadge();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -128,14 +130,20 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <SidebarItem to="/" icon={MdDashboard} label="Overview" active={isActive('/')} />
               <SidebarItem to="/users" icon={MdGroup} label="Users" active={isActive('/users')} />
               <SidebarItem to="/categories" icon={MdCategory} label="Categories" active={isActive('/categories')} />
-              <SidebarItem to="/products" icon={MdInventory2} label="Products" active={isActive('/products')} />
+              <SidebarItemWithBadge
+                to="/products"
+                icon={MdInventory2}
+                label="Products"
+                active={isActive('/products')}
+                badgeCount={productCount}
+              />
               <SidebarItem to="/packages" icon={MdCardGiftcard} label="Packages" active={isActive('/packages')} />
               <SidebarItemWithBadge
                 to="/payments"
                 icon={MdPayments}
                 label="Payments"
                 active={isActive('/payments')}
-                badgeCount={unreadCount}
+                badgeCount={paymentCount}
                 onClick={markAsRead}
               />
 
@@ -180,4 +188,3 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 export default Layout;
-
