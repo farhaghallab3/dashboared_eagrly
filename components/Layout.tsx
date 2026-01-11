@@ -91,15 +91,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 backgroundColor: theme === 'dark' ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0, 180, 216, 0.1)',
                 border: '1px solid var(--border-color)'
               }}>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl font-bold text-xl shadow-lg"
-                style={{
-                  background: theme === 'dark'
-                    ? 'linear-gradient(135deg, #64ffda 0%, #00c2ff 100%)'
-                    : 'linear-gradient(135deg, #00b4d8 0%, #0077b6 100%)',
-                  color: theme === 'dark' ? '#0a0f1a' : '#ffffff'
-                }}>
-                E+
-              </div>
+              <img src="/favicon.png" alt="Logo" className="h-12 w-12 rounded-xl shadow-lg object-contain bg-white/10" />
               <div className="flex flex-col">
                 <h1 className="text-lg font-bold leading-normal" style={{ color: 'var(--text-primary)' }}>Admin</h1>
                 <p className="text-sm font-medium leading-normal" style={{ color: 'var(--accent-primary)' }}>Stuplies Dashboard</p>

@@ -3,7 +3,8 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell, PieChart, Pie, CartesianGrid, Legend
 } from 'recharts';
-import { MdAdd, MdDownload } from 'react-icons/md';
+import { MdAdd, MdDownload, MdBarChart, MdPieChart, MdTableChart, MdShowChart, MdClose } from 'react-icons/md';
+import { Toaster, toast } from 'react-hot-toast';
 import Layout from '../components/Layout';
 import { useDashboardStats } from '../hooks/useStatistics';
 import { getProducts } from '../services/apiClient';
@@ -30,29 +31,112 @@ const StatCard = ({ title, value, change, isNegative = false, isLoading = false 
 
 const Dashboard: React.FC = () => {
   const { data: stats, loading: statsLoading } = useDashboardStats();
+  const [showAddWidget, setShowAddWidget] = React.useState(false);
 
-  // Calculate changes for stats (comparing last 30 days)
-  const getChange = (current: number, previous: number) => {
-    if (!current || !previous) return '+0.0%';
-    const change = ((current - previous) / Math.abs(previous)) * 100;
-    return `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+  // Widget Types
+  type WidgetType = 'stat_total_products' | 'stat_new_users' | 'stat_pending' | 'stat_active' | 'chart_category' | 'chart_status' | 'table_sellers';
+
+  interface Widget {
+    id: string;
+    type: WidgetType;
+  }
+
+  // Initial State
+  const [widgets, setWidgets] = React.useState<Widget[]>([
+    { id: '1', type: 'stat_total_products' },
+    { id: '2', type: 'stat_new_users' },
+    { id: '3', type: 'stat_pending' },
+    { id: '4', type: 'stat_active' },
+    { id: '5', type: 'chart_category' },
+    { id: '6', type: 'chart_status' },
+    { id: '7', type: 'table_sellers' },
+  ]);
+
+  const addWidget = (type: WidgetType) => {
+    if (widgets.some(w => w.type === type)) {
+      toast.error('Widget already exists!', {
+        style: {
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)',
+          border: '1px solid var(--border-color)',
+        }
+      });
+      return;
+    }
+    const newWidget: Widget = {
+      id: Math.random().toString(36).substr(2, 9),
+      type,
+    };
+    setWidgets([...widgets, newWidget]);
+    setShowAddWidget(false);
   };
 
-  // Prepare chart data from real stats
-  const productsByCategory = ((stats?.categories?.top_categories || [])).map((cat: any) => ({
-    name: cat.name,
-    value: cat.product_count
-  }));
+  const [draggedItem, setDraggedItem] = React.useState<Widget | null>(null);
 
-  const productsByStatus = [
-    { name: 'Active', value: stats?.products?.active || 0, color: '#22c55e' },
-    { name: 'Pending', value: stats?.products?.pending || 0, color: '#eab308' },
-    { name: 'Inactive', value: stats?.products?.inactive || 0, color: '#6b7280' },
-  ];
+  const onDragStart = (e: React.DragEvent, widget: Widget) => {
+    setDraggedItem(widget);
+    e.dataTransfer.effectAllowed = 'move';
+    // Set a transparent drag image or similar if needed, default is usually fine
+    // e.dataTransfer.setDragImage(e.currentTarget, 20, 20);
+  };
 
-  // Export products CSV
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // Necessary to allow dropping
+  };
+
+  const onDrop = (e: React.DragEvent, targetWidget: Widget) => {
+    e.preventDefault();
+    if (!draggedItem || draggedItem.id === targetWidget.id) return;
+
+    const newWidgets = [...widgets];
+    const draggedIndex = newWidgets.findIndex(w => w.id === draggedItem.id);
+    const targetIndex = newWidgets.findIndex(w => w.id === targetWidget.id);
+
+    // Remove dragged item
+    newWidgets.splice(draggedIndex, 1);
+
+    // Insert at new position (adjusting for removal if dragging forward)
+    // If we dragged from index 0 to index 2 (Forward):
+    // Original: [A, B, C]. Drag A to C.
+    // draggedIndex=0, targetIndex=2.
+    // After splice(0, 1): [B, C].
+    // Target C is now at index 1. 
+    // We want to insert 'A' such that it pushes 'C' to the right? No, users usually expect insert-before or insert-after depending on half-way point.
+    // Simple "Insert Before Target" logic:
+    // If targetIndex > draggedIndex, we need to decrement targetIndex by 1 because the array shifted left.
+    // If targetIndex < draggedIndex, the array shift happened after the target, so targetIndex is stable.
+    const insertionIndex = targetIndex;
+
+    // Wait, let's verify visual logic.
+    // [A, B, C]. targetIndex = 2 (C). 
+    // draggedIndex = 0 (A).
+    // splice(0, 1) -> [B, C].
+    // insertionIndex = 2-1 = 1.
+    // splice(1, 0, A) -> [B, A, C]. 
+    // Effect: A moved between B and C.
+    // If I wanted to swap with C (replace C's visual slot): I should insert AT C's new index?
+    // C's new index is 1. If I insert at 1, I get [B, A, C].
+    // If I drop ON C, usually I expect to take C's place, pushing C forward.
+    // So [B, A, C].
+    // This seems correct for "Insert Before".
+
+    newWidgets.splice(insertionIndex, 0, draggedItem);
+
+    setWidgets(newWidgets);
+    setDraggedItem(null);
+  };
+
+  const removeWidget = (id: string) => {
+    setWidgets(widgets.filter(w => w.id !== id));
+  };
+
+  // Helper to get nested values safely
+  const getNestedValue = (obj: any, path: string) => {
+    return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  };
+
+  // Export products CSV (Existing logic)
   const [exporting, setExporting] = React.useState(false);
-
   const handleExportProducts = async () => {
     setExporting(true);
     try {
@@ -60,7 +144,6 @@ const Dashboard: React.FC = () => {
       const rows = Array.isArray(list) ? list : (list && Array.isArray((list as any).results) ? (list as any).results : []);
       if (!rows.length) return;
 
-      // Build printable HTML arranged as a table (user can Save as PDF from print dialog)
       const styles = `
         body{font-family:Inter, Arial, Helvetica, sans-serif; color:#0b0b0b}
         .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -68,51 +151,36 @@ const Dashboard: React.FC = () => {
         table{width:100%;border-collapse:collapse;font-size:12px}
         th,td{border:1px solid #ddd;padding:8px;text-align:left}
         th{background:#f6f6f6}
-        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-        .card{border:1px solid #ddd;padding:8px}
         @media print { @page { size: A4 portrait; margin: 15mm } }
       `.trim();
 
       const headerHtml = `<div class="header"><h1>Products Export</h1><div>Generated: ${new Date().toLocaleString()}</div></div>`;
-
-      // Create table rows
       const headers = ['ID', 'Title', 'Price', 'Status', 'Category', 'Seller', 'Created At'];
-      const rowsHtml = rows.map((r: any) => `
-        <tr>
-          <td>${r.id ?? ''}</td>
-          <td>${escapeHtml(String(r.title ?? ''))}</td>
-          <td>${escapeHtml(String(r.price ?? ''))}</td>
-          <td>${escapeHtml(String(r.status ?? ''))}</td>
-          <td>${escapeHtml(String(r.category_name ?? r.category ?? ''))}</td>
-          <td>${escapeHtml(String(r.seller_name ?? r.seller ?? ''))}</td>
-          <td>${escapeHtml(String(r.created_at ?? ''))}</td>
-        </tr>
-      `).join('\n');
-
-      const tableHtml = `
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>Products Export</title><style>${styles}</style></head><body>
+        ${headerHtml}
         <table>
           <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
-          <tbody>${rowsHtml}</tbody>
+          <tbody>
+            ${rows.map((r: any) => `
+              <tr>
+                <td>${r.id ?? ''}</td>
+                <td>${String(r.title ?? '').replace(/</g, '&lt;')}</td>
+                <td>${String(r.price ?? '').replace(/</g, '&lt;')}</td>
+                <td>${String(r.status ?? '').replace(/</g, '&lt;')}</td>
+                <td>${String(r.category_name ?? r.category ?? '').replace(/</g, '&lt;')}</td>
+                <td>${String(r.seller_name ?? r.seller ?? '').replace(/</g, '&lt;')}</td>
+                <td>${String(r.created_at ?? '').replace(/</g, '&lt;')}</td>
+              </tr>`).join('')}
+          </tbody>
         </table>
-      `;
-
-      const html = `<!doctype html><html><head><meta charset="utf-8"><title>Products Export</title><style>${styles}</style></head><body>${headerHtml}${tableHtml}</body></html>`;
+      </body></html>`;
 
       const w = window.open('', '_blank');
-      if (!w) throw new Error('Unable to open new window for export (popup blocked)');
-      w.document.write(html);
-      w.document.close();
-      // Give browser a moment to render then trigger print
-      setTimeout(() => {
-        try {
-          w.focus();
-          w.print();
-          // Do not auto-close so user can save the PDF; close after a short delay optional
-          // w.close();
-        } catch (err) {
-          console.error('Print failed', err);
-        }
-      }, 500);
+      if (w) {
+        w.document.write(html);
+        w.document.close();
+        setTimeout(() => { w.focus(); w.print(); }, 500);
+      }
     } catch (err) {
       console.error('Export failed', err);
     } finally {
@@ -120,10 +188,199 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const escapeHtml = (str: string) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  // Prepare chart data
+  const productsByCategory = ((stats?.categories?.top_categories || [])).map((cat: any) => ({
+    name: cat.name,
+    value: cat.product_count
+  }));
+
+  const productsByStatus = [
+    { name: 'Active', value: stats?.products?.active || 0, color: 'var(--chart-primary)' },
+    { name: 'Pending', value: stats?.products?.pending || 0, color: 'var(--chart-secondary)' },
+    { name: 'Inactive', value: stats?.products?.inactive || 0, color: 'var(--chart-muted)' },
+  ];
+
+  // Render Widget Helper
+  const renderWidget = (widget: Widget) => {
+    switch (widget.type) {
+      // ... (stats cases unchanged) ...
+      case 'stat_total_products':
+        return (
+          <div className="min-h-[140px] h-full">
+            <StatCard title="Total Products" value={`${stats?.products?.total || 0}`} change={`+${stats?.products?.last_30_days || 0} this month`} isLoading={statsLoading} />
+          </div>
+        );
+      case 'stat_new_users':
+        return (
+          <div className="min-h-[140px] h-full">
+            <StatCard title="New Users" value={`${stats?.users?.total || 0}`} change={`+${stats?.users?.last_30_days || 0} this month`} isLoading={statsLoading} />
+          </div>
+        );
+      case 'stat_pending':
+        return (
+          <div className="min-h-[140px] h-full">
+            <StatCard title="Pending Ads" value={`${stats?.products?.pending || 0}`} change="" isLoading={statsLoading} />
+          </div>
+        );
+      case 'stat_active':
+        return (
+          <div className="min-h-[140px] h-full">
+            <StatCard title="Active Products" value={`${stats?.products?.active || 0}`} change="" isLoading={statsLoading} />
+          </div>
+        );
+      case 'chart_category':
+        return (
+          <div className="min-h-[350px] h-full flex flex-col gap-3 rounded-2xl backdrop-blur-xl p-6 transition-all duration-300 hover:shadow-lg"
+            style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+            <div className="flex justify-between items-start">
+              <div>
+                <p style={{ color: 'var(--text-secondary)' }} className="text-sm font-medium leading-normal uppercase tracking-wide">Products by Category</p>
+                <p style={{ color: 'var(--text-primary)' }} className="tracking-tight text-3xl font-bold leading-tight mt-1">{stats?.products?.total || 0} Total</p>
+              </div>
+            </div>
+            <div className="flex-1 w-full mt-4" style={{ minHeight: '300px' }}>
+              {statsLoading ? (
+                <div className="flex items-center justify-center h-full"><div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin border-primary/40"></div></div>
+              ) : productsByCategory.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={productsByCategory}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 255, 218, 0.1)" vertical={false} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#8892b0', fontSize: 11 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#8892b0', fontSize: 11 }} allowDecimals={false} />
+                    <Tooltip cursor={{ fill: 'rgba(100, 255, 218, 0.08)' }} contentStyle={{ backgroundColor: '#0f1627', borderColor: 'rgba(100, 255, 218, 0.8)', color: '#fff', borderRadius: '12px', boxShadow: '0 8px 16px rgba(0,0,0,0.5)' }} itemStyle={{ color: '#fff' }} />
+                    <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                      {productsByCategory.map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={index % 2 === 0 ? 'var(--chart-primary)' : 'var(--chart-secondary)'} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : <div className="flex items-center justify-center h-full text-[#8892b0]">No category data yet</div>}
+            </div>
+          </div>
+        );
+      case 'chart_status':
+        return (
+          <div className="min-h-[350px] h-full flex flex-col gap-3 rounded-2xl backdrop-blur-xl p-6 transition-all duration-300 hover:shadow-lg"
+            style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+            <div className="flex justify-between items-start">
+              <div>
+                <p style={{ color: 'var(--text-secondary)' }} className="text-sm font-medium leading-normal uppercase tracking-wide">Products by Status</p>
+              </div>
+            </div>
+            <div className="flex-1 w-full mt-4" style={{ minHeight: '300px' }}>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie data={productsByStatus} cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#8884d8" dataKey="value" label={(entry) => entry.name}>
+                    {productsByStatus.map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                  </Pie>
+                  <Tooltip contentStyle={{ backgroundColor: '#0f1627', borderColor: 'rgba(100, 255, 218, 0.8)', color: '#fff', borderRadius: '12px', boxShadow: '0 8px 16px rgba(0,0,0,0.5)' }} itemStyle={{ color: '#fff' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        );
+      case 'table_sellers':
+        return (
+          <div className="min-h-[200px] h-full flex flex-col rounded-2xl backdrop-blur-xl"
+            style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+            <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid var(--border-color)' }}>
+              <h2 style={{ color: 'var(--text-primary)' }} className="text-xl font-bold">Top Sellers</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead><tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}><th className="p-4">Seller</th><th className="p-4">Username</th><th className="p-4 text-right">Products</th></tr></thead>
+                <tbody>
+                  {(stats?.sellers?.top_sellers || []).length > 0 ? stats.sellers.top_sellers.map((seller: any) => (
+                    <tr key={seller.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                      <td className="p-4" style={{ color: 'var(--text-primary)' }}>{seller.first_name} {seller.last_name}</td>
+                      <td className="p-4" style={{ color: 'var(--accent-primary)' }}>{seller.username}</td>
+                      <td className="p-4 text-right" style={{ color: 'var(--text-primary)' }}>{seller.product_count}</td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan={3} className="p-6 text-center text-[#8892b0]">No seller data available yet</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      default: return null;
+    }
+  };
+
+  const getWidgetColSpan = (type: WidgetType) => {
+    switch (type) {
+      case 'stat_total_products':
+      case 'stat_new_users':
+      case 'stat_pending':
+      case 'stat_active':
+        return 'col-span-1';
+      case 'chart_category':
+      case 'chart_status':
+        return 'col-span-1 md:col-span-2';
+      case 'table_sellers':
+        return 'col-span-1 lg:col-span-4';
+      default:
+        return 'col-span-1';
+    }
+  };
+
+  const renderWidgetWrapper = (widget: Widget, content: React.ReactNode) => (
+    <div
+      draggable
+      onDragStart={(e) => onDragStart(e, widget)}
+      onDragOver={onDragOver}
+      onDrop={(e) => onDrop(e, widget)}
+      className={`relative group h-full cursor-move transition-all duration-200 ${getWidgetColSpan(widget.type)} ${draggedItem?.id === widget.id ? 'opacity-50 scale-95' : 'hover:-translate-y-1'}`}
+    >
+      <button
+        onClick={() => removeWidget(widget.id)}
+        className="absolute top-3 right-3 z-10 p-1.5 rounded-lg bg-red-500/10 text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-red-500/20"
+        title="Remove Widget"
+      >
+        <MdClose size={16} />
+      </button>
+      {content}
+    </div>
+  );
 
   return (
     <Layout>
+      <Toaster position="top-right" />
+      {/* Add Widget Modal */}
+      {showAddWidget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl p-6 shadow-2xl" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Add to Dashboard</h3>
+              <button onClick={() => setShowAddWidget(false)} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+                <div className="transform rotate-45"><MdAdd size={24} /></div>
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { type: 'stat_total_products', label: 'Total Products', icon: <MdShowChart size={24} /> },
+                { type: 'stat_new_users', label: 'New Users', icon: <MdShowChart size={24} /> },
+                { type: 'stat_pending', label: 'Pending Ads', icon: <MdShowChart size={24} /> },
+                { type: 'stat_active', label: 'Active Products', icon: <MdShowChart size={24} /> },
+                { type: 'chart_category', label: 'By Category', icon: <MdBarChart size={24} /> },
+                { type: 'chart_status', label: 'By Status', icon: <MdPieChart size={24} /> },
+                { type: 'table_sellers', label: 'Top Sellers', icon: <MdTableChart size={24} /> },
+              ].map((item) => (
+                <button
+                  key={item.type}
+                  onClick={() => addWidget(item.type as WidgetType)}
+                  className="flex flex-col items-center gap-3 p-4 rounded-xl border transition-all hover:scale-105"
+                  style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--hover-bg)' }}
+                >
+                  <span style={{ color: 'var(--accent-primary)' }}>{item.icon}</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div className="flex flex-col gap-2">
@@ -132,13 +389,14 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="flex items-center gap-3">
           <button
-            className="flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold hover:shadow-lg transition-all duration-300"
+            onClick={() => setShowAddWidget(true)}
+            className="flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold hover:shadow-lg transition-all duration-300 transform active:scale-95"
             style={{
               background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
               color: 'var(--bg-primary)'
             }}
           >
-            <MdAdd />
+            <MdAdd size={20} />
             <span>Add Widget</span>
           </button>
           <button
@@ -151,180 +409,20 @@ const Dashboard: React.FC = () => {
               color: 'var(--accent-primary)'
             }}
           >
-            {exporting ? <span className="inline-block w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--accent-primary)' }} /> : <MdDownload />}
-            <span>{exporting ? ' PDF...' : 'Export Products (PDF)'}</span>
+            {exporting ? <span className="inline-block w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--accent-primary)' }} /> : <MdDownload size={20} />}
+            <span>{exporting ? ' PDF...' : 'Export'}</span>
           </button>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <StatCard title="Total Products" value={`${stats?.products?.total || 0}`} change={`+${stats?.products?.last_30_days || 0} this month`} isLoading={statsLoading} />
-        <StatCard title="New Users" value={`${stats?.users?.total || 0}`} change={`+${stats?.users?.last_30_days || 0} this month`} isLoading={statsLoading} />
-        <StatCard title="Pending Ads" value={`${stats?.products?.pending || 0}`} change="" isLoading={statsLoading} />
-        <StatCard title="Active Products" value={`${stats?.products?.active || 0}`} change="" isLoading={statsLoading} />
+      {/* Dynamic Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-max pb-10">
+        {widgets.map((widget) => (
+          <React.Fragment key={widget.id}>
+            {renderWidgetWrapper(widget, renderWidget(widget))}
+          </React.Fragment>
+        ))}
       </div>
-
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Products by Category */}
-        <div
-          className="flex flex-1 flex-col gap-3 rounded-2xl backdrop-blur-xl p-6 transition-all duration-300 hover:shadow-lg"
-          style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}
-        >
-          <div className="flex justify-between items-start">
-            <div>
-              <p style={{ color: 'var(--text-secondary)' }} className="text-sm font-medium leading-normal uppercase tracking-wide">Products by Category</p>
-              <p style={{ color: 'var(--text-primary)' }} className="tracking-tight text-3xl font-bold leading-tight mt-1">{stats?.products?.total || 0} Total</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--accent-primary)' }}></span>
-                <span style={{ color: 'var(--text-secondary)' }} className="text-xs">Primary</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--accent-secondary)' }}></span>
-                <span style={{ color: 'var(--text-secondary)' }} className="text-xs">Secondary</span>
-              </div>
-            </div>
-          </div>
-          <div className="h-[220px] w-full mt-4">
-            {statsLoading ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin border-primary/40"></div>
-              </div>
-            ) : productsByCategory.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={productsByCategory} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 255, 218, 0.1)" vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#8892b0', fontSize: 11 }}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#8892b0', fontSize: 11 }}
-                    allowDecimals={false}
-                  />
-                  <Tooltip
-                    cursor={{ fill: 'rgba(100, 255, 218, 0.08)' }}
-                    contentStyle={{
-                      backgroundColor: '#0f1627',
-                      borderColor: 'rgba(100, 255, 218, 0.3)',
-                      color: '#fff',
-                      borderRadius: '12px',
-                      boxShadow: '0 8px 32px rgba(100, 255, 218, 0.15)'
-                    }}
-                    labelStyle={{ color: '#64ffda', fontWeight: 600 }}
-                    formatter={(value: any) => [`${value} products`, 'Count']}
-                  />
-                  <Bar dataKey="value" radius={[8, 8, 0, 0]} maxBarSize={50}>
-                    {productsByCategory.map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#64ffda' : '#00c2ff'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex items-center justify-center h-full text-[#8892b0]">No category data yet</div>
-            )}
-          </div>
-          {/* Category List */}
-          {productsByCategory.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2 pt-4 border-t border-primary/10">
-              {productsByCategory.map((cat: any, index: number) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 rounded-full text-xs font-medium border"
-                  style={{
-                    backgroundColor: index % 2 === 0 ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0, 194, 255, 0.1)',
-                    borderColor: index % 2 === 0 ? 'rgba(100, 255, 218, 0.3)' : 'rgba(0, 194, 255, 0.3)',
-                    color: index % 2 === 0 ? '#64ffda' : '#00c2ff'
-                  }}
-                >
-                  {cat.name}: {cat.value}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Products by Status */}
-        <div
-          className="flex flex-1 flex-col gap-3 rounded-2xl backdrop-blur-xl p-6"
-          style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}
-        >
-          <div className="flex justify-between items-start">
-            <div>
-              <p style={{ color: 'var(--text-secondary)' }} className="text-sm font-medium leading-normal uppercase tracking-wide">Products by Status</p>
-              <p style={{ color: 'var(--text-primary)' }} className="tracking-tight text-3xl font-bold leading-tight mt-1">{stats?.products?.total || 0} Ads</p>
-            </div>
-          </div>
-          <div className="h-[200px] w-full mt-4">
-            {statsLoading ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin border-primary/40"></div>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={productsByStatus}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={70}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={(entry) => entry.name}
-                  >
-                    {productsByStatus.map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: '#0f1627', borderColor: 'rgba(100, 255, 218, 0.2)', color: '#fff', borderRadius: '12px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Top Sellers Section */}
-      {stats?.sellers?.top_sellers && stats.sellers.top_sellers.length > 0 ? (
-        <div className="flex flex-col rounded-2xl backdrop-blur-xl overflow-hidden" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-          <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid var(--border-color)' }}>
-            <h2 style={{ color: 'var(--text-primary)' }} className="text-xl font-bold">Top Sellers</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-                  <th className="p-4 font-semibold uppercase tracking-wide text-xs">Seller</th>
-                  <th className="p-4 font-semibold uppercase tracking-wide text-xs">Username</th>
-                  <th className="p-4 font-semibold uppercase tracking-wide text-xs text-right">Products</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.sellers.top_sellers.map((seller: any) => (
-                  <tr key={seller.id} className="transition-all duration-300" style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td className="p-4" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>{seller.first_name || 'Unknown'} {seller.last_name || ''}</td>
-                    <td className="p-4 font-medium" style={{ color: 'var(--accent-primary)' }}>{seller.username}</td>
-                    <td className="p-4 text-right font-semibold" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>{seller.product_count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col rounded-2xl backdrop-blur-xl p-8 text-center" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-          <p style={{ color: 'var(--text-secondary)' }}>No seller data available yet</p>
-        </div>
-      )}
     </Layout>
   );
 };

@@ -31,7 +31,7 @@
 
     /* --- Text Colors --- */
     --text-primary: #111111;
-    --text-secondary: #555555;
+    --text-secondary: #444444;
     --text-tertiary: #888888;
     --text-muted: #AAAAAA;
     --text-inverse: #FFFFFF;
@@ -43,6 +43,11 @@
     --accent-primary-glow: rgba(255, 179, 0, 0.4);
     --accent-secondary: #FF8F00;
     --accent-gradient: linear-gradient(135deg, #FFB300 0%, #FF8F00 100%);
+    
+    /* --- Chart Colors (Light Mode - High Contrast) --- */
+    --chart-primary: #0F766E; /* Teal 700 */
+    --chart-secondary: #0369A1; /* Sky 700 */
+    --chart-muted: #6B7280; /* Gray 500 */
 
     /* --- Status Colors --- */
     --success: #22C55E;
@@ -55,7 +60,7 @@
     --info-light: rgba(59, 130, 246, 0.1);
 
     /* --- Border Colors --- */
-    --border-primary: #E5E7EB;
+    --border-primary: #D1D5DB;
     --border-secondary: #F3F4F6;
     --border-focus: #FFB300;
 
@@ -120,6 +125,11 @@
     --accent-primary-glow: rgba(255, 179, 0, 0.5);
     --accent-secondary: #FFC107;
     --accent-gradient: linear-gradient(135deg, #FFB300 0%, #FFC107 100%);
+
+    /* --- Chart Colors (Dark Mode - Neon) --- */
+    --chart-primary: #64ffda;
+    --chart-secondary: #00c2ff;
+    --chart-muted: #8892b0;
 
     /* --- Status Colors --- */
     --success: #4ADE80;
