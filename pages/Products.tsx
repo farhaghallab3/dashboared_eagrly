@@ -45,6 +45,7 @@ const Products: React.FC = () => {
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [isAlertVisible, setIsAlertVisible] = useState(true);
 
   const { register, handleSubmit, reset, setValue } = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
@@ -317,44 +318,62 @@ const Products: React.FC = () => {
       </div>
 
       {/* Pending Ads Alert Section */}
+      {/* Pending Ads Alert Section */}
       {pendingCount > 0 && (
-        <div className="mb-6 rounded-xl border-2 border-yellow-500/30 bg-yellow-500/5 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500/20">
-                <span className="text-xl">⏳</span>
+        <div
+          className={`grid transition-all duration-500 ease-in-out ${isAlertVisible ? 'grid-rows-[1fr] opacity-100 mb-6' : 'grid-rows-[0fr] opacity-0 mb-0'
+            }`}
+        >
+          <div className="overflow-hidden">
+            <div className="rounded-xl border-2 border-yellow-500/30 bg-yellow-500/5 p-6">
+              <div className="flex items-center justify-between ">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500/20">
+                    <span className="text-xl">⏳</span>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Pending Ads Awaiting Approval</h2>
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{pendingCount} ads need your review</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {selectedProducts.size > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{selectedProducts.size} selected</span>
+                      <button
+                        onClick={handleBulkApprove}
+                        disabled={bulkActionLoading}
+                        className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded font-medium hover:bg-green-600 transition disabled:opacity-50"
+                      >
+                        <MdCheck /> Approve Selected
+                      </button>
+                      <button
+                        onClick={handleBulkReject}
+                        disabled={bulkActionLoading}
+                        className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded font-medium hover:bg-red-600 transition disabled:opacity-50"
+                      >
+                        <MdClose /> Reject Selected
+                      </button>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setIsAlertVisible(false)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-black/5"
+                    title="Dismiss alert"
+                  >
+                    <MdClose size={24} />
+                  </button>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Pending Ads Awaiting Approval</h2>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{pendingCount} ads need your review</p>
-              </div>
+              {/* <button
+                onClick={() => { setStatusFilter('pending'); doRefetch(); }}
+                className="text-primary text-sm font-medium hover:underline"
+              >
+                Click here to filter and review pending ads →
+              </button> */}
             </div>
-            {selectedProducts.size > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{selectedProducts.size} selected</span>
-                <button
-                  onClick={handleBulkApprove}
-                  disabled={bulkActionLoading}
-                  className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded font-medium hover:bg-green-600 transition disabled:opacity-50"
-                >
-                  <MdCheck /> Approve Selected
-                </button>
-                <button
-                  onClick={handleBulkReject}
-                  disabled={bulkActionLoading}
-                  className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded font-medium hover:bg-red-600 transition disabled:opacity-50"
-                >
-                  <MdClose /> Reject Selected
-                </button>
-              </div>
-            )}
           </div>
-          <button
-            onClick={() => { setStatusFilter('pending'); doRefetch(); }}
-            className="text-primary text-sm font-medium hover:underline"
-          >
-            Click here to filter and review pending ads →
-          </button>
         </div>
       )}
 
