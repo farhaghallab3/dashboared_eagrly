@@ -76,4 +76,22 @@ export default {
   getPackages,
   confirmPayment,
   getPendingPaymentCount,
+  getContactMessages,
+  updateContactMessage,
+  deleteContactMessage,
 };
+
+export async function getContactMessages(params?: Record<string, any>) {
+  const { data } = await api.get(`/contact/admin/`, { params });
+  return data;
+}
+
+export async function updateContactMessage(id: number | string, data: Record<string, any>) {
+  const response = await api.patch(`/contact/admin/${id}/`, data);
+  return response.data;
+}
+
+export async function deleteContactMessage(id: number | string) {
+  const response = await api.delete(`/contact/admin/${id}/`);
+  return response.data;
+}

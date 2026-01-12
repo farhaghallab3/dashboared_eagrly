@@ -12,7 +12,8 @@ import {
   MdPayments,
   MdReport,
   MdLightMode,
-  MdDarkMode
+  MdDarkMode,
+  MdEmail
 } from 'react-icons/md';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -120,6 +121,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <nav className="flex flex-col gap-2 overflow-y-auto pr-2 flex-1">
               <p className="text-xs font-semibold uppercase tracking-wider px-4 mb-2" style={{ color: 'var(--text-secondary)' }}>Main Menu</p>
               <SidebarItem to="/" icon={MdDashboard} label="Overview" active={isActive('/')} />
+              <SidebarItem to="/messages" icon={MdEmail} label="Messages" active={isActive('/messages')} />
               <SidebarItem to="/users" icon={MdGroup} label="Users" active={isActive('/users')} />
               <SidebarItem to="/categories" icon={MdCategory} label="Categories" active={isActive('/categories')} />
               <SidebarItemWithBadge

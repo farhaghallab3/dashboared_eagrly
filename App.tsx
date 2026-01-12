@@ -21,6 +21,7 @@ import Payments from './pages/Payments';
 import Reports from './pages/Reports';
 import ReportDetails from './pages/ReportDetails';
 import Analytics from './pages/Analytics';
+import ContactMessages from './pages/ContactMessages';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, isLoading } = useAuth();
@@ -100,6 +101,7 @@ const AppRoutes = () => {
             } />
 
             <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute><ContactMessages /></ProtectedRoute>} />
 
             <Route path="*" element={<div className="flex h-screen items-center justify-center bg-[#112120] text-white flex-col gap-4"><h1 className="text-6xl font-bold text-primary">404</h1><p>Page Not Found</p></div>} />
         </Routes>
