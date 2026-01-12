@@ -87,12 +87,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           }}>
           <div className="flex flex-col gap-6 h-full">
             {/* Logo */}
-            <div className="flex items-center gap-4 p-3 rounded-xl"
+            <div className="flex items-center gap-4 px-4 py-3 rounded-xl border transition-all duration-300"
               style={{
-                backgroundColor: theme === 'dark' ? 'rgba(100, 255, 218, 0.1)' : 'rgba(0, 180, 216, 0.1)',
-                border: '1px solid var(--border-color)'
+                backgroundColor: 'var(--hover-bg)',
+                borderColor: 'var(--border-color)'
               }}>
-              <img src="/favicon.png" alt="Logo" className="h-12 w-12 rounded-xl shadow-lg object-contain bg-white/10" />
+              <img src="/favicon-rmbg.png" alt="Logo" className="logo h-12 w-12 rounded-xl shadow-lg object-contain bg-white/10" />
               <div className="flex flex-col">
                 <h1 className="text-lg font-bold leading-normal" style={{ color: 'var(--text-primary)' }}>Admin</h1>
                 <p className="text-sm font-medium leading-normal" style={{ color: 'var(--accent-primary)' }}>Stuplies Dashboard</p>

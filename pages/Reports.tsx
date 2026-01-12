@@ -4,22 +4,11 @@ import Table from '../components/ui/Table';
 import Modal from '../components/ui/Modal';
 import useReports from '../hooks/useReports';
 import { Report } from '../types';
-import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-
-type ReportForm = {
-  product: number;
-  reason: string;
-  details?: string;
-};
+import toast from 'react-hot-toast';
 
 const Reports: React.FC = () => {
-  const { data: reports, loading, opState, fetch, createItem, updateItem, deleteItem } = useReports();
-  const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
-  const { register, handleSubmit, reset } = useForm<ReportForm>();
+  const { data: reports, loading, opState, fetch, updateItem, deleteItem } = useReports();
 
   // Pagination / filtering (client-side)
   const [page, setPage] = useState(1);
@@ -27,16 +16,6 @@ const Reports: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
 
-  const onCreate = async (data: ReportForm) => {
-    try {
-      await createItem(data as any);
-      toast.success('Report created');
-      reset();
-      setIsOpen(false);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail || 'Failed to create report');
-    }
-  };
 
   const filtered = useMemo(() => {
     let arr = reports ?? [];
@@ -58,18 +37,6 @@ const Reports: React.FC = () => {
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center mb-2">
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Reports</h1>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setIsOpen(true)}
-              className="px-4 py-2 rounded font-bold"
-              style={{
-                background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
-                color: 'var(--bg-primary)'
-              }}
-            >
-              New Report
-            </button>
-          </div>
         </div>
 
         <div className="flex gap-2 items-center flex-wrap">
@@ -191,76 +158,6 @@ const Reports: React.FC = () => {
           </button>
         </div>
 
-        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Create Report">
-          <form onSubmit={handleSubmit(onCreate)} className="space-y-3">
-            <div>
-              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Product ID</label>
-              <input
-                type="number"
-                {...register('product', { valueAsNumber: true })}
-                className="w-full p-2 rounded"
-                style={{
-                  backgroundColor: 'var(--input-bg)',
-                  border: '1px solid var(--border-color)',
-                  color: 'var(--text-primary)'
-                }}
-              />
-            </div>
-            <div>
-              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Reason</label>
-              <select
-                {...register('reason')}
-                className="w-full p-2 rounded"
-                style={{
-                  backgroundColor: 'var(--input-bg)',
-                  border: '1px solid var(--border-color)',
-                  color: 'var(--text-primary)'
-                }}
-              >
-                <option value="spam">Spam or scam</option>
-                <option value="fraud">Fraudulent listing</option>
-                <option value="inappropriate">Inappropriate</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Details</label>
-              <textarea
-                {...register('details')}
-                className="w-full p-2 rounded h-28"
-                style={{
-                  backgroundColor: 'var(--input-bg)',
-                  border: '1px solid var(--border-color)',
-                  color: 'var(--text-primary)'
-                }}
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="px-4 py-2 rounded font-bold"
-                style={{
-                  background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
-                  color: 'var(--bg-primary)'
-                }}
-              >
-                Create
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="px-4 py-2 rounded"
-                style={{
-                  border: '1px solid var(--border-color)',
-                  color: 'var(--text-primary)',
-                  backgroundColor: 'var(--hover-bg)'
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </Modal>
       </div>
     </Layout>
   );

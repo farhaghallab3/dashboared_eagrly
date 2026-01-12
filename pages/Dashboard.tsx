@@ -3,7 +3,7 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell, PieChart, Pie, CartesianGrid, Legend
 } from 'recharts';
-import { MdAdd, MdDownload, MdBarChart, MdPieChart, MdTableChart, MdShowChart, MdClose } from 'react-icons/md';
+import { MdAdd, MdDownload, MdBarChart, MdPieChart, MdTableChart, MdShowChart, MdClose, MdAspectRatio } from 'react-icons/md';
 import { Toaster, toast } from 'react-hot-toast';
 import Layout from '../components/Layout';
 import { useDashboardStats } from '../hooks/useStatistics';
@@ -39,18 +39,36 @@ const Dashboard: React.FC = () => {
   interface Widget {
     id: string;
     type: WidgetType;
+    colSpan: number;
   }
 
   // Initial State
   const [widgets, setWidgets] = React.useState<Widget[]>([
-    { id: '1', type: 'stat_total_products' },
-    { id: '2', type: 'stat_new_users' },
-    { id: '3', type: 'stat_pending' },
-    { id: '4', type: 'stat_active' },
-    { id: '5', type: 'chart_category' },
-    { id: '6', type: 'chart_status' },
-    { id: '7', type: 'table_sellers' },
+    { id: '1', type: 'stat_total_products', colSpan: 3 },
+    { id: '2', type: 'stat_new_users', colSpan: 3 },
+    { id: '3', type: 'stat_pending', colSpan: 3 },
+    { id: '4', type: 'stat_active', colSpan: 3 },
+    { id: '5', type: 'chart_category', colSpan: 6 },
+    { id: '6', type: 'chart_status', colSpan: 6 },
+    { id: '7', type: 'table_sellers', colSpan: 12 },
   ]);
+
+  const getDefaultColSpan = (type: WidgetType): number => {
+    switch (type) {
+      case 'stat_total_products':
+      case 'stat_new_users':
+      case 'stat_pending':
+      case 'stat_active':
+        return 3;
+      case 'chart_category':
+      case 'chart_status':
+        return 6;
+      case 'table_sellers':
+        return 12;
+      default:
+        return 12;
+    }
+  };
 
   const addWidget = (type: WidgetType) => {
     if (widgets.some(w => w.type === type)) {
@@ -66,14 +84,33 @@ const Dashboard: React.FC = () => {
     const newWidget: Widget = {
       id: Math.random().toString(36).substr(2, 9),
       type,
+      colSpan: getDefaultColSpan(type)
     };
     setWidgets([...widgets, newWidget]);
     setShowAddWidget(false);
   };
 
+  const toggleWidgetSize = (id: string) => {
+    setWidgets(widgets.map(w => {
+      if (w.id === id) {
+        // Cycle sizes
+        const sizes = [3, 4, 6, 8, 12];
+        const currentIndex = sizes.indexOf(w.colSpan);
+        const nextSize = sizes[(currentIndex + 1) % sizes.length];
+        return { ...w, colSpan: nextSize };
+      }
+      return w;
+    }));
+  };
+
   const [draggedItem, setDraggedItem] = React.useState<Widget | null>(null);
 
   const onDragStart = (e: React.DragEvent, widget: Widget) => {
+    // Prevent drag if clicking the resize button
+    if ((e.target as HTMLElement).closest('.resize-btn')) {
+      e.preventDefault();
+      return;
+    }
     setDraggedItem(widget);
     e.dataTransfer.effectAllowed = 'move';
     // Set a transparent drag image or similar if needed, default is usually fine
@@ -230,7 +267,7 @@ const Dashboard: React.FC = () => {
         );
       case 'chart_category':
         return (
-          <div className="min-h-[350px] h-full flex flex-col gap-3 rounded-2xl backdrop-blur-xl p-6 transition-all duration-300 hover:shadow-lg"
+          <div className="min-h-[350px] h-full flex flex-col gap-3 rounded-2xl backdrop-blur-xl p-4 sm:p-6 transition-all duration-300 hover:shadow-lg"
             style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
             <div className="flex justify-between items-start">
               <div>
@@ -259,7 +296,7 @@ const Dashboard: React.FC = () => {
         );
       case 'chart_status':
         return (
-          <div className="min-h-[350px] h-full flex flex-col gap-3 rounded-2xl backdrop-blur-xl p-6 transition-all duration-300 hover:shadow-lg"
+          <div className="min-h-[350px] h-full flex flex-col gap-3 rounded-2xl backdrop-blur-xl p-4 sm:p-6 transition-all duration-300 hover:shadow-lg"
             style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
             <div className="flex justify-between items-start">
               <div>
@@ -269,7 +306,7 @@ const Dashboard: React.FC = () => {
             <div className="flex-1 w-full mt-4" style={{ minHeight: '300px' }}>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  <Pie data={productsByStatus} cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#8884d8" dataKey="value" label={(entry) => entry.name}>
+                  <Pie data={productsByStatus} cx="50%" cy="50%" innerRadius="50%" outerRadius="80%" fill="#8884d8" dataKey="value" label={(entry) => entry.name}>
                     {productsByStatus.map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                   </Pie>
                   <Tooltip contentStyle={{ backgroundColor: '#0f1627', borderColor: 'rgba(100, 255, 218, 0.8)', color: '#fff', borderRadius: '12px', boxShadow: '0 8px 16px rgba(0,0,0,0.5)' }} itemStyle={{ color: '#fff' }} />
@@ -307,20 +344,14 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const getWidgetColSpan = (type: WidgetType) => {
-    switch (type) {
-      case 'stat_total_products':
-      case 'stat_new_users':
-      case 'stat_pending':
-      case 'stat_active':
-        return 'col-span-1';
-      case 'chart_category':
-      case 'chart_status':
-        return 'col-span-1 md:col-span-2';
-      case 'table_sellers':
-        return 'col-span-1 lg:col-span-4';
-      default:
-        return 'col-span-1';
+  const getColSpanClass = (span: number) => {
+    switch (span) {
+      case 3: return 'col-span-12 sm:col-span-6 lg:col-span-3';
+      case 4: return 'col-span-12 sm:col-span-6 lg:col-span-4';
+      case 6: return 'col-span-12 lg:col-span-6';
+      case 8: return 'col-span-12 lg:col-span-8';
+      case 12: return 'col-span-12';
+      default: return 'col-span-12';
     }
   };
 
@@ -330,15 +361,24 @@ const Dashboard: React.FC = () => {
       onDragStart={(e) => onDragStart(e, widget)}
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, widget)}
-      className={`relative group h-full cursor-move transition-all duration-200 ${getWidgetColSpan(widget.type)} ${draggedItem?.id === widget.id ? 'opacity-50 scale-95' : 'hover:-translate-y-1'}`}
+      className={`relative group h-full cursor-move transition-all duration-200 ${getColSpanClass(widget.colSpan)} ${draggedItem?.id === widget.id ? 'opacity-50 scale-95' : 'hover:-translate-y-1'}`}
     >
-      <button
-        onClick={() => removeWidget(widget.id)}
-        className="absolute top-3 right-3 z-10 p-1.5 rounded-lg bg-red-500/10 text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-red-500/20"
-        title="Remove Widget"
-      >
-        <MdClose size={16} />
-      </button>
+      <div className="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+        <button
+          onClick={() => toggleWidgetSize(widget.id)}
+          className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 resize-btn"
+          title="Resize Widget"
+        >
+          <MdAspectRatio size={16} />
+        </button>
+        <button
+          onClick={() => removeWidget(widget.id)}
+          className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20"
+          title="Remove Widget"
+        >
+          <MdClose size={16} />
+        </button>
+      </div>
       {content}
     </div>
   );
@@ -416,7 +456,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Dynamic Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-max pb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6 auto-rows-max pb-10">
         {widgets.map((widget) => (
           <React.Fragment key={widget.id}>
             {renderWidgetWrapper(widget, renderWidget(widget))}

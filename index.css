@@ -238,3 +238,12 @@ body {
     background: var(--accent-primary);
     color: var(--text-inverse);
 }
+
+/* Logo Styling */
+.logo {
+    transition: filter 0.2s ease;
+}
+
+[data-theme="dark"] .logo {
+    filter: invert(1) brightness(2);
+}

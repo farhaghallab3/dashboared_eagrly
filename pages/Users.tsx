@@ -198,7 +198,7 @@ const Users: React.FC = () => {
         <Table<User>
           data={filteredUsers}
           columns={[
-            { header: 'ID', accessor: 'id', className: 'text-primary w-16' },
+            { header: 'ID', accessor: 'id', className: 'w-16' },
             { header: 'Username', accessor: 'username', className: 'font-medium' },
             { header: 'Email', accessor: 'email' },
             { header: 'Role', accessor: (u) => <span className={`px-2 py-1 rounded text-xs font-semibold ${u.role === 'admin' ? 'bg-primary/20 text-primary' : 'bg-white/10 text-white'}`}>{u.role.toUpperCase()}</span> },
