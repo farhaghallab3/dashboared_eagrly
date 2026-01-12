@@ -493,17 +493,29 @@ const Analytics: React.FC = () => {
                                 { type: 'chart_status_dist', label: 'Status Dist.', icon: <MdPieChart size={24} /> },
                                 { type: 'chart_university_dist', label: 'University Dist.', icon: <MdBarChart size={24} /> },
                                 { type: 'table_top_products', label: 'Top Products', icon: <MdTableChart size={24} /> },
-                            ].map((item) => (
-                                <button
-                                    key={item.type}
-                                    onClick={() => addWidget(item.type as WidgetType)}
-                                    className="flex flex-col items-center gap-3 p-4 rounded-xl border transition-all hover:scale-105"
-                                    style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--hover-bg)' }}
-                                >
-                                    <span style={{ color: 'var(--accent-primary)' }}>{item.icon}</span>
-                                    <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.label}</span>
-                                </button>
-                            ))}
+                            ].map((item) => {
+                                const isAdded = widgets.some(w => w.type === item.type);
+                                return (
+                                    <button
+                                        key={item.type}
+                                        onClick={() => !isAdded && addWidget(item.type as WidgetType)}
+                                        disabled={isAdded}
+                                        className={`flex flex-col items-center gap-3 p-4 rounded-xl border transition-all ${isAdded ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
+                                        style={{
+                                            borderColor: isAdded ? 'var(--accent-primary)' : 'var(--border-color)',
+                                            backgroundColor: isAdded ? 'rgba(255, 179, 0, 0.1)' : 'var(--hover-bg)'
+                                        }}
+                                    >
+                                        <span style={{ color: 'var(--accent-primary)' }}>{item.icon}</span>
+                                        <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.label}</span>
+                                        {isAdded && (
+                                            <span className="text-xs px-2 py-1 rounded-full" style={{ backgroundColor: 'var(--accent-primary)', color: 'var(--bg-primary)' }}>
+                                                ✓ Added
+                                            </span>
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

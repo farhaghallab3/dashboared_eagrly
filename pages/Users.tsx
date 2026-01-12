@@ -7,6 +7,7 @@ import Layout from '../components/Layout';
 import Table from '../components/ui/Table';
 import Modal from '../components/ui/Modal';
 import Pagination from '../components/ui/Pagination';
+import SuccessAnimation from '../components/ui/SuccessAnimation';
 import api from '../services/api';
 import { User, Package } from '../types';
 import toast from 'react-hot-toast';
@@ -31,6 +32,8 @@ const Users: React.FC = () => {
   const [upgradingUser, setUpgradingUser] = useState<User | null>(null);
   const [selectedPackageId, setSelectedPackageId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -114,23 +117,35 @@ const Users: React.FC = () => {
   };
 
   const handleUpgradeUser = async () => {
-    if (!upgradingUser || !selectedPackageId) {
-      toast.error("Please select a package");
+    if (!upgradingUser) {
+      toast.error("No user selected");
       return;
     }
     try {
-      await api.post(`/users/${upgradingUser.id}/assign_package/`, {
-        package_id: selectedPackageId
-      });
-      const pkg = packages.find(p => p.id === selectedPackageId);
-      toast.success(`User upgraded to ${pkg?.name || 'package'}`);
+      let message = '';
+      if (selectedPackageId === null) {
+        // Remove package (downgrade to free)
+        await api.post(`/users/${upgradingUser.id}/remove_package/`);
+        message = 'User downgraded to Free tier';
+      } else {
+        await api.post(`/users/${upgradingUser.id}/assign_package/`, {
+          package_id: selectedPackageId
+        });
+        const pkg = packages.find(p => p.id === selectedPackageId);
+        message = `User upgraded to ${pkg?.name || 'package'}`;
+      }
       setIsUpgradeModalOpen(false);
       setUpgradingUser(null);
       setSelectedPackageId(null);
+
+      // Show success animation
+      setSuccessMessage(message);
+      setShowSuccess(true);
+
       fetchUsers(currentPage);
     } catch (err: any) {
       console.error(err);
-      toast.error(err.response?.data?.error || "Failed to upgrade user");
+      toast.error(err.response?.data?.error || "Failed to update user package");
     }
   };
 
@@ -162,6 +177,14 @@ const Users: React.FC = () => {
 
   return (
     <Layout>
+      {/* Success Animation */}
+      {showSuccess && (
+        <SuccessAnimation
+          message={successMessage}
+          onComplete={() => setShowSuccess(false)}
+        />
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>User Management</h1>
         <button
@@ -305,7 +328,7 @@ const Users: React.FC = () => {
       {/* Upgrade Package Modal */}
       <Modal isOpen={isUpgradeModalOpen} onClose={() => { setIsUpgradeModalOpen(false); setUpgradingUser(null); }} title={`Upgrade ${upgradingUser?.username || 'User'}`}>
         <div className="space-y-4">
-          <p className="text-white/70 text-sm">
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Select a subscription package to assign to this user. This will grant them access to the package benefits including increased ad limits.
           </p>
 
@@ -316,28 +339,54 @@ const Users: React.FC = () => {
           )}
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-white/80">Select Package</label>
+            <label className="mb-2 block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Select Package</label>
             <div className="space-y-2">
+              {/* Free Tier Option */}
+              <div
+                onClick={() => setSelectedPackageId(null)}
+                className="p-4 rounded-lg cursor-pointer transition border"
+                style={{
+                  borderColor: selectedPackageId === null ? 'var(--accent-primary)' : 'var(--border-color)',
+                  backgroundColor: selectedPackageId === null ? 'rgba(255, 179, 0, 0.1)' : 'var(--hover-bg)'
+                }}
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Free Tier</h4>
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Default tier with limited ads</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold" style={{ color: 'var(--accent-primary)' }}>$0</p>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Forever</p>
+                  </div>
+                </div>
+                <div className="mt-2 flex gap-4 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                  <span>📦 3 ads</span>
+                  <span>⭐ 0 featured</span>
+                </div>
+              </div>
+
               {packages.map((pkg) => (
                 <div
                   key={pkg.id}
                   onClick={() => setSelectedPackageId(pkg.id)}
-                  className={`p-4 rounded-lg cursor-pointer transition border ${selectedPackageId === pkg.id
-                    ? 'border-primary bg-primary/10'
-                    : 'border-white/10 bg-black/20 hover:border-white/20'
-                    }`}
+                  className={`p-4 rounded-lg cursor-pointer transition border`}
+                  style={{
+                    borderColor: selectedPackageId === pkg.id ? 'var(--accent-primary)' : 'var(--border-color)',
+                    backgroundColor: selectedPackageId === pkg.id ? 'rgba(255, 179, 0, 0.1)' : 'var(--hover-bg)'
+                  }}
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <h4 className="font-semibold text-white">{pkg.name}</h4>
-                      <p className="text-white/60 text-sm">{pkg.description}</p>
+                      <h4 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{pkg.name}</h4>
+                      <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{pkg.description}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-primary">${pkg.price}</p>
-                      <p className="text-white/50 text-xs">{pkg.duration_in_days} days</p>
+                      <p className="font-bold" style={{ color: 'var(--accent-primary)' }}>${pkg.price}</p>
+                      <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{pkg.duration_in_days} days</p>
                     </div>
                   </div>
-                  <div className="mt-2 flex gap-4 text-xs text-white/50">
+                  <div className="mt-2 flex gap-4 text-xs" style={{ color: 'var(--text-secondary)' }}>
                     <span>📦 {pkg.ad_limit} ads</span>
                     <span>⭐ {pkg.featured_ad_limit} featured</span>
                   </div>
@@ -349,21 +398,25 @@ const Users: React.FC = () => {
           <div className="pt-4 flex gap-3">
             <button
               onClick={() => { setIsUpgradeModalOpen(false); setUpgradingUser(null); }}
-              className="flex-1 rounded-lg border border-white/10 py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/5"
+              className="flex-1 rounded-lg border py-2.5 text-sm font-medium transition hover:opacity-80"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
             >
               Cancel
             </button>
             <button
               onClick={handleUpgradeUser}
-              disabled={!selectedPackageId}
-              className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-bold text-[#112120] transition hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 rounded-lg py-2.5 text-sm font-bold transition hover:opacity-90"
+              style={{
+                background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                color: 'var(--bg-primary)'
+              }}
             >
-              Assign Package
+              {selectedPackageId === null ? 'Remove Package' : 'Assign Package'}
             </button>
           </div>
         </div>
       </Modal>
-    </Layout>
+    </Layout >
   );
 };
 

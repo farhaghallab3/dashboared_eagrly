@@ -32,7 +32,6 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       await loginUser(data.username, data.password);
-      toast.success('Login successful!');
       navigate('/');
     } catch (error: any) {
       console.error('Login Error Details:', error);
